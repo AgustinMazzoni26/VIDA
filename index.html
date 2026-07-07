@@ -282,6 +282,55 @@
   .stock-form .frow{ display:flex; gap:6px; }
   .stock-form input{ flex:1; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:7px 9px; color:var(--text-primary); font-size:12px; font-family:var(--font-body); min-width:0; }
   .stock-form button{ background:var(--salud-dim); color:var(--salud); border:none; border-radius:7px; padding:7px 12px; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; }
+
+  /* MOBILE NAV — oculta en desktop */
+  .mobile-nav{ display:none; }
+
+  /* ===== RESPONSIVE MOBILE ===== */
+  @media (max-width: 760px){
+    body{ flex-direction:column; }
+    .sidebar{ display:none; }
+    .main{ max-width:100%; }
+    .content{ padding:16px 16px 90px; }
+    .header{ flex-direction:column; align-items:flex-start; gap:4px; }
+    .header h1{ font-size:24px; }
+    .home-goals-card .title{ font-size:18px; }
+
+    .dash-grid{ grid-template-columns:1fr; }
+    .area-grid{ grid-template-columns:1fr; }
+    .fin-cols{ grid-template-columns:1fr; }
+    .salud-grid{ grid-template-columns:1fr; }
+    .week-grid{ grid-template-columns:repeat(2,1fr); }
+    .calendar-page{ grid-template-columns:1fr; }
+    .live-prices{ grid-template-columns:repeat(2,1fr); }
+    .pie-section{ flex-direction:column; align-items:flex-start; }
+
+    .board{ grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:82%; overflow-x:auto; padding-bottom:8px; scroll-snap-type:x mandatory; }
+    .board-col{ scroll-snap-align:start; }
+
+    .cal-day{ min-height:58px; padding:4px; }
+    .cal-day .day-num{ font-size:10px; }
+    .cal-day .day-ev-item{ font-size:8.5px; }
+
+    .ticker-item{ font-size:11px; padding:0 14px; }
+
+    .subtabs{ overflow-x:auto; }
+
+    /* mostrar la nav mobile */
+    .mobile-nav{
+      display:flex;
+      position:fixed; bottom:0; left:0; right:0;
+      background:var(--bg-1); border-top:1px solid var(--border);
+      padding:8px 4px calc(8px + env(safe-area-inset-bottom));
+      overflow-x:auto; z-index:50; gap:2px;
+    }
+    .mnav-item{
+      flex:1; min-width:58px; display:flex; flex-direction:column; align-items:center; gap:3px;
+      color:var(--text-muted); font-family:var(--font-mono); font-size:9px; cursor:pointer; padding:2px 0;
+    }
+    .mnav-item.active{ color:var(--signal); }
+    .mnav-item .mic{ font-size:17px; }
+  }
 </style>
 </head>
 <body>
@@ -300,6 +349,16 @@
     <div class="sidebar-footer">Agustín</div>
   </div>
 
+  <div class="mobile-nav">
+    <div class="mnav-item active" data-nav="home"><span class="mic">&#8962;</span><span class="mlabel">Home</span></div>
+    <div class="mnav-item" data-nav="marca"><span class="mic">&#9835;</span><span class="mlabel">Marca</span></div>
+    <div class="mnav-item" data-nav="trabajo"><span class="mic">&#9881;</span><span class="mlabel">Trabajo</span></div>
+    <div class="mnav-item" data-nav="finanzas"><span class="mic">&#8383;</span><span class="mlabel">Finanzas</span></div>
+    <div class="mnav-item" data-nav="salud"><span class="mic">&#9679;</span><span class="mlabel">Salud</span></div>
+    <div class="mnav-item" data-nav="calendario"><span class="mic">&#128197;</span><span class="mlabel">Calendario</span></div>
+    <div class="mnav-item" data-nav="recordatorios"><span class="mic">&#128276;</span><span class="mlabel">Avisos</span></div>
+  </div>
+
   <div class="main">
     <div class="ticker-wrap">
       <div class="ticker" id="ticker-content">
@@ -313,7 +372,10 @@
       <div id="home-view" class="view visible">
         <div class="header">
           <div><div class="eyebrow" id="month-label"></div><h1>Hola, Agustín</h1></div>
-          <div class="today-date" id="today-label"></div>
+          <div>
+            <div class="today-date" id="today-label"></div>
+            <div id="sync-status" style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-align:right; margin-top:3px;">sincronizando...</div>
+          </div>
         </div>
         <div class="dash-grid">
           <div>
@@ -546,6 +608,54 @@
   </div>
 
 <script>
+  // ===== CAPA DE ALMACENAMIENTO SINCRONIZADO (nube + caché offline) =====
+  // LS_DATA vive en memoria durante la sesión. Se llena al arrancar desde el servidor
+  // (o desde la caché local si no hay internet), y cada cambio se guarda local al instante
+  // + se manda al servidor con un pequeño delay para no saturar de pedidos.
+  let LS_DATA = {};
+  let syncTimer = null;
+  const LS = {
+    getItem(k){ return Object.prototype.hasOwnProperty.call(LS_DATA, k) ? LS_DATA[k] : null; },
+    setItem(k, v){
+      LS_DATA[k] = v;
+      try{ window.localStorage.setItem('vida_cache', JSON.stringify(LS_DATA)); }catch(e){}
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(pushToCloud, 700);
+    },
+    removeItem(k){
+      delete LS_DATA[k];
+      try{ window.localStorage.setItem('vida_cache', JSON.stringify(LS_DATA)); }catch(e){}
+      clearTimeout(syncTimer);
+      syncTimer = setTimeout(pushToCloud, 700);
+    }
+  };
+  async function pushToCloud(){
+    try{
+      await fetch('/api/data', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(LS_DATA)
+      });
+      document.getElementById('sync-status') && (document.getElementById('sync-status').textContent = 'sincronizado');
+    }catch(e){
+      document.getElementById('sync-status') && (document.getElementById('sync-status').textContent = 'sin conexión · guardado local');
+    }
+  }
+  async function loadCloudState(){
+    try{
+      const res = await fetch('/api/data');
+      if(!res.ok) throw new Error('bad response');
+      const serverData = await res.json();
+      LS_DATA = serverData || {};
+      try{ window.localStorage.setItem('vida_cache', JSON.stringify(LS_DATA)); }catch(e){}
+      const el = document.getElementById('sync-status'); if(el) el.textContent = 'sincronizado';
+    }catch(e){
+      // sin internet o falló el servidor: uso lo último guardado en este dispositivo
+      try{ LS_DATA = JSON.parse(window.localStorage.getItem('vida_cache') || '{}'); }catch(err){ LS_DATA = {}; }
+      const el = document.getElementById('sync-status'); if(el) el.textContent = 'sin conexión · usando datos locales';
+    }
+  }
+
   const MONTH_NAMES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const DAY_NAMES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
   const today = new Date();
@@ -561,12 +671,12 @@
   const CURRENT_MK = monthKey(today.getFullYear(), today.getMonth());
   const DEFAULT_GOALS_SEED = { marca:'Terminar 1 track', trabajo:'Cerrar automatización de pagos BEP20', finanzas:'Cargar compra DCA del mes', salud:'Terminar libro actual' };
   function loadAllGoals(){
-    const raw = localStorage.getItem('vida_goals_v2');
+    const raw = LS.getItem('vida_goals_v2');
     let data = raw ? JSON.parse(raw) : {};
     if(!data[CURRENT_MK]) data[CURRENT_MK] = Object.entries(DEFAULT_GOALS_SEED).map(([area,text])=>({area,text,done:false}));
     return data;
   }
-  function saveAllGoals(d){ localStorage.setItem('vida_goals_v2', JSON.stringify(d)); }
+  function saveAllGoals(d){ LS.setItem('vida_goals_v2', JSON.stringify(d)); }
   function renderGoals(){
     const all = loadAllGoals(); const current = all[CURRENT_MK] || [];
     document.getElementById('goals-title').textContent = 'Metas de ' + MONTH_NAMES[today.getMonth()];
@@ -655,8 +765,8 @@
   });
 
   let calYear = today.getFullYear(), calMonth = today.getMonth(), selectedDate = null;
-  const loadEvents = ()=> JSON.parse(localStorage.getItem('vida_events')||'{}');
-  const saveEvents = ev => localStorage.setItem('vida_events', JSON.stringify(ev));
+  const loadEvents = ()=> JSON.parse(LS.getItem('vida_events')||'{}');
+  const saveEvents = ev => LS.setItem('vida_events', JSON.stringify(ev));
   function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
   function evText(e){ return typeof e === 'string' ? e : e.text; }
   function evTime(e){ return typeof e === 'string' ? null : (e.time || null); }
@@ -717,8 +827,8 @@
   document.getElementById('cal-prev').addEventListener('click', ()=>{ calMonth--; if(calMonth<0){calMonth=11; calYear--;} renderCalendar(); });
   document.getElementById('cal-next').addEventListener('click', ()=>{ calMonth++; if(calMonth>11){calMonth=0; calYear++;} renderCalendar(); });
 
-  const loadReminders = ()=> JSON.parse(localStorage.getItem('vida_reminders')||'[]');
-  const saveReminders = r => localStorage.setItem('vida_reminders', JSON.stringify(r));
+  const loadReminders = ()=> JSON.parse(LS.getItem('vida_reminders')||'[]');
+  const saveReminders = r => LS.setItem('vida_reminders', JSON.stringify(r));
   function renderReminders(){
     const items = loadReminders(); const list = document.getElementById('reminders-list'); list.innerHTML='';
     items.forEach((r, idx)=>{
@@ -749,8 +859,8 @@
   }
 
   const DEFAULT_WEEKS = { 1:[{text:'Subir clip DJ', done:true}], 2:[{text:'Arreglo track julio', done:false}], 3:[{text:'Clase modular #3', done:false}], 4:[{text:'Cierre mensual', done:false}] };
-  const loadWeeks = ()=> JSON.parse(localStorage.getItem('vida_weeks')|| JSON.stringify(DEFAULT_WEEKS));
-  const saveWeeks = w => localStorage.setItem('vida_weeks', JSON.stringify(w));
+  const loadWeeks = ()=> JSON.parse(LS.getItem('vida_weeks')|| JSON.stringify(DEFAULT_WEEKS));
+  const saveWeeks = w => LS.setItem('vida_weeks', JSON.stringify(w));
   function renderWeeks(){
     const weeks = loadWeeks(); const grid = document.getElementById('week-grid'); grid.innerHTML='';
     [1,2,3,4].forEach(wk=>{
@@ -774,8 +884,8 @@
   }
 
   const BOARD_COLS = ['Idea','Grabando','Editando','Publicado'];
-  const loadBoard = ()=> JSON.parse(localStorage.getItem('vida_board')|| JSON.stringify({Idea:[],Grabando:[],Editando:[],Publicado:[]}));
-  const saveBoard = b => localStorage.setItem('vida_board', JSON.stringify(b));
+  const loadBoard = ()=> JSON.parse(LS.getItem('vida_board')|| JSON.stringify({Idea:[],Grabando:[],Editando:[],Publicado:[]}));
+  const saveBoard = b => LS.setItem('vida_board', JSON.stringify(b));
   function renderBoard(){
     const board = loadBoard(); const wrap = document.getElementById('board'); wrap.innerHTML='';
     BOARD_COLS.forEach((col, colIdx)=>{
@@ -802,8 +912,8 @@
     });
   }
 
-  const loadTracks = ()=> JSON.parse(localStorage.getItem('vida_tracks')||'[]');
-  const saveTracks = t => localStorage.setItem('vida_tracks', JSON.stringify(t));
+  const loadTracks = ()=> JSON.parse(LS.getItem('vida_tracks')||'[]');
+  const saveTracks = t => LS.setItem('vida_tracks', JSON.stringify(t));
   const TRACK_STATUSES = ['Idea','Arreglo','Mezcla','Master','Entregado'];
   function renderTracks(){
     const tracks = loadTracks(); const list = document.getElementById('tracks-list'); list.innerHTML='';
@@ -833,8 +943,8 @@
 
   let pfFilter = 'todos';
   const PF_TIPOS = ['facturacion','equipo','conectividad','cliente'];
-  const loadPortfolio = ()=> JSON.parse(localStorage.getItem('vida_portfolio')||'[]');
-  const savePortfolio = p => localStorage.setItem('vida_portfolio', JSON.stringify(p));
+  const loadPortfolio = ()=> JSON.parse(LS.getItem('vida_portfolio')||'[]');
+  const savePortfolio = p => LS.setItem('vida_portfolio', JSON.stringify(p));
   const PF_LABELS = { todos:'Todos', facturacion:'Facturación', equipo:'Equipo', conectividad:'Conectividad', cliente:'Cliente' };
   function renderPfFilters(){
     const box = document.getElementById('pf-filters'); box.innerHTML='';
@@ -888,10 +998,10 @@
     renderPortfolio();
   });
 
-  const loadAssets = ()=> JSON.parse(localStorage.getItem('vida_assets')||'[{"name":"USDT","amount":19000,"date":""},{"name":"PayPal","amount":188,"date":""}]');
-  const saveAssets = a => localStorage.setItem('vida_assets', JSON.stringify(a));
-  const loadPurchases = ()=> JSON.parse(localStorage.getItem('vida_purchases')||'[]');
-  const savePurchases = p => localStorage.setItem('vida_purchases', JSON.stringify(p));
+  const loadAssets = ()=> JSON.parse(LS.getItem('vida_assets')||'[{"name":"USDT","amount":19000,"date":""},{"name":"PayPal","amount":188,"date":""}]');
+  const saveAssets = a => LS.setItem('vida_assets', JSON.stringify(a));
+  const loadPurchases = ()=> JSON.parse(LS.getItem('vida_purchases')||'[]');
+  const savePurchases = p => LS.setItem('vida_purchases', JSON.stringify(p));
 
   function renderAssets(){
     const assets = loadAssets(); const list = document.getElementById('assets-list'); list.innerHTML='';
@@ -996,8 +1106,8 @@
     {name:'D3+K2', unit:'caps', total:60, dailyDose:1, startDate: todayISO},
     {name:'Omega-3', unit:'caps', total:90, dailyDose:1, startDate: todayISO},
   ];
-  const loadStock = ()=> JSON.parse(localStorage.getItem('vida_stock')|| JSON.stringify(STOCK_DEFAULT));
-  const saveStock = s => localStorage.setItem('vida_stock', JSON.stringify(s));
+  const loadStock = ()=> JSON.parse(LS.getItem('vida_stock')|| JSON.stringify(STOCK_DEFAULT));
+  const saveStock = s => LS.setItem('vida_stock', JSON.stringify(s));
   function renderStock(){
     const stock = loadStock(); const list = document.getElementById('stock-list'); list.innerHTML='';
     stock.forEach((s, idx)=>{
@@ -1039,8 +1149,8 @@
     document.getElementById('stock-start').value = todayISO;
     renderStock();
   });
-  const loadBooks = ()=> JSON.parse(localStorage.getItem('vida_books')||'[]');
-  const saveBooks = b => localStorage.setItem('vida_books', JSON.stringify(b));
+  const loadBooks = ()=> JSON.parse(LS.getItem('vida_books')||'[]');
+  const saveBooks = b => LS.setItem('vida_books', JSON.stringify(b));
   function renderBooks(){
     const books = loadBooks(); const list = document.getElementById('books-list'); list.innerHTML='';
     books.forEach((b, idx)=>{
@@ -1056,8 +1166,8 @@
     if(!input.value.trim()) return;
     const bs = loadBooks(); bs.push({title:input.value.trim(), status}); saveBooks(bs); input.value=''; renderBooks();
   });
-  const loadPodcasts = ()=> JSON.parse(localStorage.getItem('vida_podcasts_log')||'[]');
-  const savePodcasts = p => localStorage.setItem('vida_podcasts_log', JSON.stringify(p));
+  const loadPodcasts = ()=> JSON.parse(LS.getItem('vida_podcasts_log')||'[]');
+  const savePodcasts = p => LS.setItem('vida_podcasts_log', JSON.stringify(p));
   function renderPodcasts(){
     const items = loadPodcasts(); const list = document.getElementById('podcasts-list'); list.innerHTML='';
     if(!items.length){ list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">Sin podcasts cargados.</div>'; return; }
@@ -1077,8 +1187,10 @@
 
   function goTo(view){
     document.querySelectorAll('.nav-link').forEach(el=> el.classList.toggle('active', el.dataset.nav===view));
+    document.querySelectorAll('.mnav-item').forEach(el=> el.classList.toggle('active', el.dataset.nav===view));
     document.querySelectorAll('.view').forEach(el=> el.classList.remove('visible'));
     document.getElementById(view+'-view').classList.add('visible');
+    window.scrollTo(0,0);
   }
   document.querySelectorAll('[data-nav]').forEach(el=>{ el.addEventListener('click', ()=> goTo(el.dataset.nav)); });
 
@@ -1154,13 +1266,18 @@
     renderLivePrices();
     renderPurchases(); // para refrescar valor actual / ganancia de las compras
   }
-  loadAndRenderPrices();
-  setInterval(loadAndRenderPrices, 60000); // refresca cada 60s mientras la página esté abierta
+  async function initApp(){
+    await loadCloudState(); // trae los datos guardados (de la nube o de la caché local si no hay internet)
 
-  renderHeader(); renderGoals(); renderCalendar(); renderReminders(); renderHomeReminders(); renderWeeks();
-  renderBoard(); renderTracks(); renderPfFilters(); renderPortfolio();
-  renderAssets(); renderPurchases(); renderStock(); renderBooks(); renderPodcasts();
-  ['marca','trabajo','finanzas','salud'].forEach(renderAreaGoalsUI);
+    renderHeader(); renderGoals(); renderCalendar(); renderReminders(); renderHomeReminders(); renderWeeks();
+    renderBoard(); renderTracks(); renderPfFilters(); renderPortfolio();
+    renderAssets(); renderPurchases(); renderStock(); renderBooks(); renderPodcasts();
+    ['marca','trabajo','finanzas','salud'].forEach(renderAreaGoalsUI);
+
+    loadAndRenderPrices();
+    setInterval(loadAndRenderPrices, 60000); // refresca precios cada 60s mientras la página esté abierta
+  }
+  initApp();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
