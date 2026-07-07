@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIDA</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VIDA">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0B0C0F; --bg-1:#111318; --bg-2:#181B21;
+    --border:#24272E; --border-strong:#33373F;
+    --text-primary:#ECEAE6; --text-secondary:#9A9DA5; --text-muted:#5E6169;
+    --signal:#00E6A0; --signal-dim:#0A3B2C;
+    --down:#FF6B57; --down-dim:#3A1912;
+    --marca:#8B7FFF; --marca-dim:#211E3A;
+    --trabajo:#FFB020; --trabajo-dim:#3A2C0C;
+    --finanzas:#00E6A0; --finanzas-dim:#0A3B2C;
+    --salud:#FF6B57; --salud-dim:#3A1912;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{ height:100%; }
+  body{ background:var(--bg-0); color:var(--text-primary); font-family:var(--font-body); display:flex; }
+
+  .sidebar{ width:220px; flex-shrink:0; background:var(--bg-1); border-right:1px solid var(--border); padding:24px 16px; display:flex; flex-direction:column; gap:4px; height:100vh; position:sticky; top:0; }
+  .brand{ font-family:var(--font-display); font-size:19px; font-weight:700; letter-spacing:.02em; padding:0 12px 24px; }
+  .brand .dot{ color:var(--signal); }
+  .nav-link{ display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:8px; color:var(--text-secondary); font-size:14px; font-weight:500; cursor:pointer; }
+  .nav-link .ic{ font-size:16px; width:18px; text-align:center; color:var(--text-muted); }
+  .nav-link.active{ background:var(--bg-2); color:var(--text-primary); }
+  .nav-link.active .ic{ color:var(--signal); }
+  .nav-link:hover:not(.active){ background:var(--bg-2); }
+  .nav-divider{ border-top:1px solid var(--border); margin:14px 4px 10px; }
+  .nav-group-label{ font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); padding:0 12px 6px; }
+  .sidebar-footer{ margin-top:auto; padding:12px; font-family:var(--font-mono); font-size:11px; color:var(--text-muted); border-top:1px solid var(--border); padding-top:16px; }
+
+  .main{ flex:1; max-width:calc(100% - 220px); display:flex; flex-direction:column; }
+
+  .ticker-wrap{ background:var(--bg-1); border-bottom:1px solid var(--border); overflow:hidden; white-space:nowrap; padding:10px 0; }
+  .ticker{ display:inline-flex; animation: scroll 28s linear infinite; }
+  .ticker-item{ display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:13px; padding:0 24px; color:var(--text-secondary); border-right:1px solid var(--border); }
+  .ticker-item .dot{ width:6px; height:6px; border-radius:50%; background:var(--signal); box-shadow:0 0 6px var(--signal); }
+  .ticker-item .val{ color:var(--text-primary); font-weight:500; }
+  .ticker-item .up{ color:var(--signal); } .ticker-item .down{ color:var(--down); }
+  @keyframes scroll{ 0%{ transform:translateX(0); } 100%{ transform:translateX(-50%); } }
+  .ticker-note{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-align:right; padding:4px 40px 0 0; }
+
+  .content{ padding:24px 40px 60px; max-width:1200px; }
+  .header{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:8px; }
+  .header .eyebrow{ font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); }
+  .header h1{ font-family:var(--font-display); font-size:30px; font-weight:600; margin-top:4px; letter-spacing:-0.01em; }
+  .header .today-date{ font-family:var(--font-mono); font-size:13px; color:var(--text-secondary); text-transform:capitalize; }
+  .section-label{ font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin:28px 0 12px; }
+
+  .dash-grid{ display:grid; grid-template-columns:280px 1fr; gap:20px; align-items:start; }
+
+  .goals-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:18px; }
+  .goals-card .title{ font-family:var(--font-display); font-size:15px; font-weight:600; margin-bottom:4px; text-transform:capitalize; }
+  .goals-card .count{ font-family:var(--font-mono); font-size:12px; color:var(--text-muted); margin-bottom:12px; }
+  .home-goals-card{ padding:24px; border-color:var(--border-strong); }
+  .home-goals-card .title{ font-size:20px; }
+  .home-goals-card .count{ font-size:13px; }
+  .home-goals-card .goal-row{ font-size:15px; padding:9px 0; }
+  .see-all{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); cursor:pointer; margin-top:10px; display:inline-block; }
+  .see-all:hover{ color:var(--signal); }
+  .goal-row{ display:flex; align-items:center; gap:9px; padding:7px 0; border-bottom:1px solid var(--border); font-size:14px; }
+  .goal-row:last-child{ border-bottom:none; }
+  .goal-row input[type=checkbox]{ width:14px; height:14px; accent-color:var(--signal); flex-shrink:0; }
+  .goal-row label{ flex:1; } .goal-row .tag{ font-family:var(--font-mono); font-size:9px; padding:2px 6px; border-radius:5px; flex-shrink:0; }
+  .goal-row .del{ color:var(--text-muted); cursor:pointer; font-size:14px; } .goal-row .del:hover{ color:var(--down); }
+  .goal-row.done label{ color:var(--text-muted); text-decoration:line-through; }
+  .tag.marca{ background:var(--marca-dim); color:var(--marca); } .tag.trabajo{ background:var(--trabajo-dim); color:var(--trabajo); }
+  .tag.finanzas{ background:var(--finanzas-dim); color:var(--finanzas); } .tag.salud{ background:var(--salud-dim); color:var(--salud); }
+  .area-month-select{ background:var(--bg-2); border:1px solid var(--border); border-radius:7px; color:var(--text-secondary); font-size:11px; font-family:var(--font-mono); padding:6px 8px; text-transform:capitalize; }
+
+  .add-goal-section{ margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+  .add-goal-section input{ width:100%; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:8px 10px; color:var(--text-primary); font-size:12px; font-family:var(--font-body); margin-bottom:10px; }
+  .add-goal-section button{ background:var(--bg-2); border:1px solid var(--border); color:var(--text-secondary); border-radius:7px; padding:8px 12px; font-size:12px; font-weight:500; cursor:pointer; width:100%; }
+  .add-goal-section button:hover{ color:var(--signal); border-color:var(--signal); }
+  .month-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  .goal-row .month-tag{ font-family:var(--font-mono); font-size:9px; color:var(--text-muted); background:var(--bg-2); padding:2px 7px; border-radius:5px; flex-shrink:0; text-transform:capitalize; }
+  .month-chip{ display:flex; align-items:center; gap:5px; font-family:var(--font-mono); font-size:10px; color:var(--text-secondary); background:var(--bg-2); border:1px solid var(--border); border-radius:6px; padding:5px 8px; cursor:pointer; text-transform:capitalize; }
+  .month-chip input{ width:11px; height:11px; accent-color:var(--signal); }
+
+  .add-goal{ display:flex; gap:6px; margin-top:12px; }
+  .add-goal select{ background:var(--bg-2); border:1px solid var(--border); border-radius:7px; color:var(--text-secondary); font-size:11px; font-family:var(--font-mono); padding:0 4px; }
+  .add-goal input{ flex:1; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:6px 8px; color:var(--text-primary); font-size:12px; font-family:var(--font-body); min-width:0; }
+  .add-goal button{ background:var(--bg-2); border:1px solid var(--border); color:var(--text-secondary); border-radius:7px; padding:6px 10px; font-size:13px; cursor:pointer; flex-shrink:0; }
+  .add-goal button:hover{ color:var(--signal); border-color:var(--signal); }
+
+  .history-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:16px 18px; margin-top:14px; }
+  .history-card .h-title{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:capitalize; margin-bottom:8px; display:flex; justify-content:space-between; }
+  .history-card .h-row{ font-size:12px; color:var(--text-secondary); padding:4px 0; display:flex; gap:8px; }
+  .history-card .h-row.done{ color:var(--text-muted); text-decoration:line-through; }
+  .history-card + .history-card{ margin-top:8px; }
+
+  .area-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:14px; }
+  .area-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:20px; display:flex; align-items:center; gap:16px; cursor:pointer; transition:border-color .15s, transform .15s; border-left-width:3px; border-left-style:solid; }
+  .area-card:hover{ border-color:var(--border-strong); transform:translateY(-1px); }
+  .area-card.marca{ border-left-color:var(--marca); } .area-card.trabajo{ border-left-color:var(--trabajo); }
+  .area-card.finanzas{ border-left-color:var(--finanzas); } .area-card.salud{ border-left-color:var(--salud); }
+  .area-icon{ width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+  .area-card.marca .area-icon{ background:var(--marca-dim); color:var(--marca); }
+  .area-card.trabajo .area-icon{ background:var(--trabajo-dim); color:var(--trabajo); }
+  .area-card.finanzas .area-icon{ background:var(--finanzas-dim); color:var(--finanzas); }
+  .area-card.salud .area-icon{ background:var(--salud-dim); color:var(--salud); }
+  .area-body{ flex:1; min-width:0; } .area-body .name{ font-family:var(--font-display); font-size:17px; font-weight:600; }
+  .area-body .meta{ font-size:12.5px; color:var(--text-secondary); margin-top:3px; }
+  .area-progress{ font-family:var(--font-mono); font-size:14px; color:var(--text-muted); flex-shrink:0; }
+  .area-progress .n{ color:var(--text-primary); font-weight:500; }
+
+  .week-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; }
+  .week-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:12px; padding:14px; display:flex; flex-direction:column; }
+  .week-card .wk-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .week-card .wk{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); }
+  .week-card .wk-count{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); }
+  .task-list{ flex:1; margin-bottom:8px; }
+  .task{ display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-secondary); margin-bottom:8px; }
+  .task input[type=checkbox]{ width:13px; height:13px; accent-color:var(--signal); flex-shrink:0; }
+  .task.done span.txt{ color:var(--text-muted); text-decoration:line-through; } .task span.txt{ flex:1; }
+  .task span.del{ color:var(--text-muted); cursor:pointer; font-size:13px; } .task span.del:hover{ color:var(--down); }
+  .add-task{ display:flex; gap:6px; }
+  .add-task input{ flex:1; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:6px 8px; color:var(--text-primary); font-size:11px; font-family:var(--font-body); min-width:0; }
+  .add-task button{ background:var(--bg-2); border:1px solid var(--border); color:var(--text-secondary); border-radius:7px; padding:6px 10px; font-size:13px; cursor:pointer; }
+  .add-task button:hover{ color:var(--signal); border-color:var(--signal); }
+
+  .calendar-page{ display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:start; }
+  .calendar-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:22px; }
+  .cal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .cal-head .month{ font-family:var(--font-display); font-size:18px; font-weight:600; text-transform:capitalize; }
+  .cal-nav{ display:flex; gap:8px; } .cal-nav span{ cursor:pointer; color:var(--text-muted); font-size:16px; padding:2px 8px; } .cal-nav span:hover{ color:var(--text-primary); }
+  .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-bottom:8px; } .cal-weekdays div{ text-align:center; }
+  .cal-days{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+  .cal-day{ position:relative; min-height:76px; background:var(--bg-2); border:1px solid transparent; border-radius:8px; padding:6px; cursor:pointer; display:flex; flex-direction:column; gap:3px; overflow:hidden; }
+  .cal-day.empty{ background:transparent; cursor:default; }
+  .cal-day:hover:not(.empty){ border-color:var(--border-strong); }
+  .cal-day.today{ border-color:var(--signal); }
+  .cal-day.selected{ box-shadow:0 0 0 2px var(--signal) inset; }
+  .cal-day .day-num{ font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); flex-shrink:0; }
+  .cal-day.today .day-num{ color:var(--signal); font-weight:700; }
+  .cal-day .day-events{ display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+  .cal-day .day-ev-item{ font-size:9.5px; line-height:1.3; color:var(--text-primary); background:var(--bg-1); border-radius:4px; padding:2px 5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cal-day .day-ev-more{ font-size:9px; color:var(--text-muted); font-family:var(--font-mono); padding-left:2px; }
+  .cal-event-box .lbl{ font-family:var(--font-mono); font-size:14px; color:var(--text-primary); font-weight:600; margin-bottom:2px; text-transform:capitalize; }
+  .event-day-count{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); margin-bottom:14px; }
+  .cal-event-box{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:18px; }
+  .cal-event-box input{ width:100%; background:var(--bg-2); border:1px solid var(--border); border-radius:8px; padding:9px 10px; color:var(--text-primary); font-size:13px; font-family:var(--font-body); margin-bottom:8px; }
+  .cal-event-box button{ background:var(--signal-dim); color:var(--signal); border:none; border-radius:8px; padding:8px 12px; font-size:13px; font-weight:500; cursor:pointer; width:100%; }
+  .cal-event-list{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+  .cal-event-list .ev{ font-size:13px; color:var(--text-secondary); display:flex; justify-content:space-between; gap:8px; background:var(--bg-2); border-radius:7px; padding:7px 10px; }
+  .cal-event-list .ev span.x{ color:var(--text-muted); cursor:pointer; }
+
+  .reminders-page{ max-width:520px; }
+  .reminders-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:20px; }
+  .rem-row{ display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:14px; } .rem-row:last-child{ border-bottom:none; }
+  .rem-row input[type=checkbox]{ width:15px; height:15px; accent-color:var(--signal); flex-shrink:0; }
+  .rem-row span.txt{ flex:1; } .rem-row.done span.txt{ color:var(--text-muted); text-decoration:line-through; }
+  .rem-row .del{ color:var(--text-muted); cursor:pointer; font-size:15px; } .rem-row .del:hover{ color:var(--down); }
+  .add-reminder{ display:flex; gap:8px; margin-top:14px; }
+  .add-reminder input{ flex:1; background:var(--bg-2); border:1px solid var(--border); border-radius:8px; padding:9px 10px; color:var(--text-primary); font-size:13px; font-family:var(--font-body); }
+  .add-reminder button{ background:var(--signal-dim); color:var(--signal); border:none; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:500; cursor:pointer; }
+
+  .view{ display:none; } .view.visible{ display:block; }
+  .detail-empty{ background:var(--bg-1); border:1px dashed var(--border-strong); border-radius:14px; padding:32px; text-align:center; color:var(--text-secondary); font-size:13px; }
+
+  .subtabs{ display:flex; gap:6px; margin-bottom:20px; }
+  .subtab{ font-family:var(--font-mono); font-size:12px; color:var(--text-secondary); background:var(--bg-1); border:1px solid var(--border); border-radius:8px; padding:8px 14px; cursor:pointer; }
+  .subtab.active{ color:var(--marca); border-color:var(--marca); background:var(--marca-dim); }
+  .subview{ display:none; } .subview.visible{ display:block; }
+
+  .board{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .board-col{ background:var(--bg-1); border:1px solid var(--border); border-radius:12px; padding:12px; min-height:200px; }
+  .board-col .col-title{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; display:flex; justify-content:space-between; }
+  .board-card{ background:var(--bg-2); border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:8px; font-size:13px; }
+  .board-card .bc-actions{ display:flex; justify-content:space-between; margin-top:8px; }
+  .board-card .bc-actions span{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); cursor:pointer; }
+  .board-card .bc-actions span:hover{ color:var(--signal); }
+  .board-add{ display:flex; gap:6px; margin-top:6px; }
+  .board-add input{ flex:1; background:var(--bg-0); border:1px solid var(--border); border-radius:6px; padding:6px 8px; color:var(--text-primary); font-size:12px; min-width:0; }
+  .board-add button{ background:var(--bg-0); border:1px solid var(--border); color:var(--text-secondary); border-radius:6px; padding:6px 10px; cursor:pointer; }
+
+  .filter-row{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .filter-btn{ font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); background:var(--bg-1); border:1px solid var(--border); border-radius:20px; padding:6px 14px; cursor:pointer; }
+  .filter-btn.active{ color:var(--trabajo); border-color:var(--trabajo); background:var(--trabajo-dim); }
+  .portfolio-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:20px; }
+  .pf-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .pf-card .pf-tag{ font-family:var(--font-mono); font-size:9px; color:var(--trabajo); background:var(--trabajo-dim); padding:2px 8px; border-radius:5px; display:inline-block; margin-bottom:8px; }
+  .pf-card .pf-date{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); float:right; }
+  .pf-card .pf-title{ font-family:var(--font-display); font-size:14px; font-weight:600; margin-bottom:6px; clear:both; }
+  .pf-card .pf-label{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; margin-top:8px; }
+  .pf-card .pf-text{ font-size:12px; color:var(--text-secondary); margin-top:2px; }
+  .pf-card .pf-file{ font-size:11px; color:var(--trabajo); margin-top:4px; display:block; }
+  .pf-card .pf-del{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); cursor:pointer; float:right; margin-top:12px; }
+  .pf-card .pf-del:hover{ color:var(--down); }
+  .pf-form{ background:var(--bg-1); border:1px solid var(--border); border-radius:12px; padding:18px; }
+  .pf-form .frow{ display:flex; gap:8px; margin-bottom:8px; }
+  .pf-form input, .pf-form select, .pf-form textarea{ background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:8px 10px; color:var(--text-primary); font-size:12px; font-family:var(--font-body); width:100%; }
+  .pf-form textarea{ resize:vertical; min-height:50px; }
+  .pf-form button{ background:var(--trabajo-dim); color:var(--trabajo); border:none; border-radius:8px; padding:8px 14px; font-size:12px; font-weight:500; cursor:pointer; }
+
+  .patrimonio-total{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:24px; margin-bottom:20px; }
+  .patrimonio-total .lbl{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-transform:uppercase; }
+  .patrimonio-total .val{ font-family:var(--font-display); font-size:38px; font-weight:700; color:var(--finanzas); margin-top:4px; }
+  .patrimonio-breakdown{ font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); margin-top:10px; line-height:1.6; }
+  .cotiz-mini{ font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); margin-bottom:16px; }
+  .cotiz-mini b{ color:var(--text-primary); font-weight:600; }
+  .cotiz-mini .sep{ margin:0 8px; color:var(--text-muted); }
+  .live-prices{ display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px; margin-bottom:6px; }
+  .live-price-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:12px; padding:14px; }
+  .live-price-card .lp-name{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-transform:uppercase; }
+  .live-price-card .lp-val{ font-family:var(--font-display); font-size:18px; font-weight:600; margin-top:4px; }
+  .live-price-card .lp-chg{ font-family:var(--font-mono); font-size:11px; margin-top:3px; }
+  .live-price-card .lp-chg.up{ color:var(--signal); } .live-price-card .lp-chg.down{ color:var(--down); }
+  .live-updated{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+  .live-updated .refresh-btn{ cursor:pointer; color:var(--signal); }
+  .asset-row{ display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .asset-row:last-child{ border-bottom:none; }
+  .asset-row .a-name{ flex:1; } .asset-row .a-amt{ font-family:var(--font-mono); color:var(--text-primary); }
+  .asset-row .del{ color:var(--text-muted); cursor:pointer; } .asset-row .del:hover{ color:var(--down); }
+  .add-asset{ display:flex; gap:8px; margin-top:14px; }
+  .add-asset input{ flex:1; background:var(--bg-2); border:1px solid var(--border); border-radius:8px; padding:9px 10px; color:var(--text-primary); font-size:13px; min-width:0; }
+  .add-asset button{ background:var(--finanzas-dim); color:var(--finanzas); border:none; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:500; cursor:pointer; }
+  .cotiz-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-bottom:20px; }
+  .cotiz-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .cotiz-card .lbl{ font-family:var(--font-mono); font-size:11px; color:var(--text-muted); } .cotiz-card .val{ font-family:var(--font-display); font-size:22px; font-weight:600; margin-top:4px; }
+
+  .pie-section{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:22px; display:flex; gap:28px; align-items:center; flex-wrap:wrap; margin-bottom:20px; }
+  .pie-chart{ width:170px; height:170px; border-radius:50%; flex-shrink:0; background:var(--bg-2); }
+  .pie-legend{ flex:1; min-width:200px; }
+  .pie-legend-row{ display:flex; align-items:center; gap:9px; font-size:12px; padding:6px 0; border-bottom:1px solid var(--border); }
+  .pie-legend-row:last-child{ border-bottom:none; }
+  .pie-swatch{ width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+  .pie-legend-row .pl-name{ flex:1; color:var(--text-primary); }
+  .pie-legend-row .pl-val{ font-family:var(--font-mono); color:var(--text-secondary); font-size:11px; }
+
+  .fin-cols{ display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
+  .purchase-row{ display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--border); font-size:12px; }
+  .purchase-row:last-child{ border-bottom:none; }
+  .purchase-row .p-info{ flex:1; }
+  .purchase-row .p-asset{ font-weight:500; color:var(--text-primary); }
+  .purchase-row .p-detail{ font-family:var(--font-mono); font-size:10px; color:var(--text-muted); margin-top:2px; }
+  .purchase-row .del{ color:var(--text-muted); cursor:pointer; } .purchase-row .del:hover{ color:var(--down); }
+
+  .salud-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
+  .salud-card{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:16px; }
+  .salud-card .title{ font-family:var(--font-display); font-size:14px; font-weight:600; margin-bottom:12px; }
+  .book-row{ display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px; } .book-row:last-child{ border-bottom:none; }
+  .book-row .b-title{ flex:1; }
+  .book-row.terminado .b-title{ color:var(--text-muted); text-decoration:line-through; }
+  .book-row.leyendo .b-title{ color:var(--salud); }
+  .book-row.pendiente .b-title{ color:var(--text-primary); }
+  .book-row select{ background:var(--bg-2); border:1px solid var(--border); border-radius:6px; color:var(--text-secondary); font-size:11px; font-family:var(--font-mono); padding:3px 4px; }
+  .book-row .del{ color:var(--text-muted); cursor:pointer; } .book-row .del:hover{ color:var(--down); }
+  .add-book{ display:flex; gap:6px; margin-top:10px; }
+  .add-book input{ flex:1; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:7px 9px; color:var(--text-primary); font-size:12px; min-width:0; }
+  .add-book button{ background:var(--bg-2); border:1px solid var(--border); color:var(--text-secondary); border-radius:7px; padding:7px 11px; cursor:pointer; }
+  .podcast-count{ display:flex; align-items:center; gap:12px; }
+  .podcast-count input{ width:70px; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:8px; color:var(--text-primary); font-size:16px; font-family:var(--font-mono); text-align:center; }
+
+  /* STOCK SUPLEMENTOS */
+  .stock-item{ padding:12px 0; border-bottom:1px solid var(--border); }
+  .stock-item:last-child{ border-bottom:none; }
+  .stock-item .si-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .stock-item .si-name{ font-size:13px; font-weight:500; }
+  .stock-item .si-remain{ font-family:var(--font-mono); font-size:12px; color:var(--text-secondary); }
+  .stock-item .si-remain .n{ color:var(--salud); font-weight:600; }
+  .stock-item .si-remain .low{ color:var(--down); }
+  .stock-bar{ width:100%; height:5px; background:var(--bg-2); border-radius:3px; overflow:hidden; margin-bottom:8px; }
+  .stock-bar-fill{ height:100%; background:var(--salud); border-radius:3px; transition:width .2s; }
+  .si-actions{ display:flex; align-items:center; gap:8px; }
+  .si-actions button{ background:var(--salud-dim); color:var(--salud); border:none; border-radius:6px; padding:5px 10px; font-size:11px; font-family:var(--font-mono); cursor:pointer; }
+  .si-actions .si-del{ margin-left:auto; background:none; color:var(--text-muted); font-size:11px; }
+  .si-actions .si-del:hover{ color:var(--down); }
+  .stock-form{ margin-top:14px; display:flex; flex-direction:column; gap:6px; }
+  .stock-form .frow{ display:flex; gap:6px; }
+  .stock-form input{ flex:1; background:var(--bg-2); border:1px solid var(--border); border-radius:7px; padding:7px 9px; color:var(--text-primary); font-size:12px; font-family:var(--font-body); min-width:0; }
+  .stock-form button{ background:var(--salud-dim); color:var(--salud); border:none; border-radius:7px; padding:7px 12px; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; }
+</style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="brand">VIDA<span class="dot">.</span></div>
+    <div class="nav-link active" data-nav="home"><span class="ic">&#8962;</span>Home</div>
+    <div class="nav-link" data-nav="marca"><span class="ic">&#9835;</span>Marca personal</div>
+    <div class="nav-link" data-nav="trabajo"><span class="ic">&#9881;</span>Trabajo</div>
+    <div class="nav-link" data-nav="finanzas"><span class="ic">&#8383;</span>Finanzas</div>
+    <div class="nav-link" data-nav="salud"><span class="ic">&#9679;</span>Salud</div>
+    <div class="nav-divider"></div>
+    <div class="nav-group-label">Herramientas</div>
+    <div class="nav-link" data-nav="calendario"><span class="ic">&#128197;</span>Calendario</div>
+    <div class="nav-link" data-nav="recordatorios"><span class="ic">&#128276;</span>Recordatorios</div>
+    <div class="sidebar-footer">Agustín</div>
+  </div>
+
+  <div class="main">
+    <div class="ticker-wrap">
+      <div class="ticker" id="ticker-content">
+        <span class="ticker-item"><span class="dot"></span>Cargando cotizaciones...</span>
+      </div>
+    </div>
+    <div class="ticker-note" id="ticker-note">actualizando...</div>
+
+    <div class="content">
+
+      <div id="home-view" class="view visible">
+        <div class="header">
+          <div><div class="eyebrow" id="month-label"></div><h1>Hola, Agustín</h1></div>
+          <div class="today-date" id="today-label"></div>
+        </div>
+        <div class="dash-grid">
+          <div>
+            <div class="goals-card home-goals-card">
+              <div class="title" id="goals-title"></div>
+              <div class="count" id="goals-count"></div>
+              <div id="goals-list"></div>
+            </div>
+            <div class="goals-card" style="margin-top:14px;">
+              <div class="title">Recordatorios</div>
+              <div id="home-reminders-list"></div>
+              <div class="see-all" data-nav="recordatorios">Ver todos los recordatorios →</div>
+            </div>
+            <div class="section-label">Otros meses</div>
+            <div id="goals-history"></div>
+          </div>
+          <div>
+            <div class="section-label" style="margin-top:0;">Organización semanal (editable)</div>
+            <div class="week-grid" id="week-grid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="marca-view" class="view">
+        <div class="header"><div><h1>Marca personal</h1></div></div>
+        <div class="goals-card" style="max-width:500px; margin-bottom:20px;">
+          <div class="title" style="margin-bottom:8px;">Metas mensuales</div>
+          <div id="marca-goals-list" style="margin-top:4px;"></div>
+          <div class="add-goal-section">
+            <input type="text" id="marca-goal-input" placeholder="Nueva meta...">
+            <div class="frow" style="display:flex; gap:8px;">
+              <select class="area-month-select" id="marca-goal-month" style="flex:1;"></select>
+              <button class="area-goal-add" data-area="marca" style="width:auto; white-space:nowrap; padding:8px 14px;">Agregar meta</button>
+            </div>
+          </div>
+        </div>
+        <div class="subtabs">
+          <div class="subtab active" data-sub="contenido">Contenido</div>
+          <div class="subtab" data-sub="djing">DJing</div>
+          <div class="subtab" data-sub="produccion">Producción</div>
+        </div>
+        <div id="sub-contenido" class="subview visible"><div class="board" id="board"></div></div>
+        <div id="sub-djing" class="subview">
+          <div class="detail-empty">DJing en stand by. Cuando lo activemos: registro de práctica con CDJ y tus playlists de Rekordbox como referencia.</div>
+        </div>
+        <div id="sub-produccion" class="subview">
+          <div class="detail-empty" style="margin-bottom:16px;">Producción en stand by — la meta mensual se sincroniza con "Metas de marca" del Home.</div>
+          <div class="board-col" style="max-width:400px;">
+            <div class="col-title">Tracks en curso</div>
+            <div id="tracks-list"></div>
+            <div class="board-add"><input type="text" id="track-input" placeholder="Nombre del track..."><button id="track-add">+</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="trabajo-view" class="view">
+        <div class="header"><div><h1>Trabajo</h1></div></div>
+        <div class="section-label" style="margin-top:0;">Metas mensuales</div>
+        <div class="goals-card" style="max-width:500px; margin-bottom:20px;">
+          <div id="trabajo-goals-list" style="margin-top:4px;"></div>
+          <div class="add-goal-section">
+            <input type="text" id="trabajo-goal-input" placeholder="Nueva meta...">
+            <div class="frow" style="display:flex; gap:8px;">
+              <select class="area-month-select" id="trabajo-goal-month" style="flex:1;"></select>
+              <button class="area-goal-add" data-area="trabajo" style="width:auto; white-space:nowrap; padding:8px 14px;">Agregar meta</button>
+            </div>
+          </div>
+        </div>
+        <div class="section-label">Portafolio · Agustín ADM</div>
+        <div class="filter-row" id="pf-filters"></div>
+        <div class="portfolio-grid" id="pf-grid"></div>
+        <div class="pf-form">
+          <div class="frow">
+            <select id="pf-tipo"><option value="facturacion">Facturación</option><option value="equipo">Equipo</option><option value="conectividad">Conectividad</option><option value="cliente">Cliente</option></select>
+            <input type="text" id="pf-titulo" placeholder="Título del caso...">
+          </div>
+          <textarea id="pf-problema" placeholder="Problemática..." style="margin-bottom:6px;"></textarea>
+          <div class="frow" style="margin-bottom:12px;"><input type="file" id="pf-foto-problema"></div>
+          <textarea id="pf-solucion" placeholder="Solución..." style="margin-bottom:6px;"></textarea>
+          <div class="frow" style="margin-bottom:12px;"><input type="file" id="pf-foto-solucion"></div>
+          <button id="pf-add">Agregar caso</button>
+        </div>
+      </div>
+
+      <div id="finanzas-view" class="view">
+        <div class="header"><div><h1>Finanzas</h1></div></div>
+
+        <div class="section-label" style="margin-top:0;">Precios en vivo</div>
+        <div class="live-prices" id="live-prices">
+          <div style="font-size:12px;color:var(--text-muted);">Cargando precios...</div>
+        </div>
+        <div class="live-updated" id="live-updated"></div>
+
+        <div class="patrimonio-total">
+          <div class="lbl">Patrimonio total</div>
+          <div class="val" id="patrimonio-total">USD 0</div>
+          <div class="patrimonio-breakdown" id="patrimonio-breakdown"></div>
+        </div>
+
+        <div class="section-label">Distribución del patrimonio</div>
+        <div class="pie-section">
+          <div class="pie-chart" id="pie-chart"></div>
+          <div class="pie-legend" id="pie-legend"></div>
+        </div>
+
+        <div class="fin-cols">
+          <div>
+            <div class="section-label" style="margin-top:0;">Historial de activos</div>
+            <div class="goals-card">
+              <div id="assets-list"></div>
+              <div class="add-asset"><input type="text" id="asset-name" placeholder="Nombre (USDT, PayPal)..."><input type="number" id="asset-amount" placeholder="Monto USD" style="max-width:120px;"><button id="asset-add">+</button></div>
+            </div>
+          </div>
+          <div>
+            <div class="section-label" style="margin-top:0;">Historial de compras</div>
+            <div class="goals-card">
+              <div id="purchases-list"></div>
+              <div class="add-goal-section" style="margin-top:10px; padding-top:0; border-top:none;">
+                <div class="frow" style="display:flex; gap:6px; margin-bottom:8px;">
+                  <input type="number" id="purchase-usd" placeholder="Monto USD">
+                  <select id="purchase-asset" style="background:var(--bg-2); border:1px solid var(--border); border-radius:7px; color:var(--text-primary); font-size:12px; padding:0 8px;">
+                    <option value="Bitcoin">Bitcoin</option>
+                    <option value="HYPE">HYPE</option>
+                    <option value="Solana">Solana</option>
+                    <option value="Otro">Otro...</option>
+                  </select>
+                </div>
+                <input type="text" id="purchase-asset-custom" placeholder="Nombre del activo..." style="display:none; margin-bottom:8px;">
+                <input type="number" id="purchase-price" placeholder="Precio de compra (USD)" style="margin-bottom:10px;">
+                <button id="purchase-add">Agregar compra</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Metas mensuales</div>
+        <div class="goals-card" style="max-width:500px;">
+          <div id="finanzas-goals-list" style="margin-top:4px;"></div>
+          <div class="add-goal-section">
+            <input type="text" id="finanzas-goal-input" placeholder="Nueva meta...">
+            <div class="frow" style="display:flex; gap:8px;">
+              <select class="area-month-select" id="finanzas-goal-month" style="flex:1;"></select>
+              <button class="area-goal-add" data-area="finanzas" style="width:auto; white-space:nowrap; padding:8px 14px;">Agregar meta</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="salud-view" class="view">
+        <div class="header"><div><h1>Salud</h1></div></div>
+        <div class="goals-card" style="max-width:500px; margin-bottom:20px;">
+          <div class="title" style="margin-bottom:8px;">Metas mensuales</div>
+          <div id="salud-goals-list" style="margin-top:4px;"></div>
+          <div class="add-goal-section">
+            <input type="text" id="salud-goal-input" placeholder="Nueva meta...">
+            <div class="frow" style="display:flex; gap:8px;">
+              <select class="area-month-select" id="salud-goal-month" style="flex:1;"></select>
+              <button class="area-goal-add" data-area="salud" style="width:auto; white-space:nowrap; padding:8px 14px;">Agregar meta</button>
+            </div>
+          </div>
+        </div>
+        <div class="salud-grid">
+          <div>
+            <div class="section-label" style="margin-top:0;">Suplementación</div>
+            <div class="salud-card">
+              <div id="stock-list"></div>
+              <div class="stock-form">
+                <div class="frow">
+                  <input type="text" id="stock-name" placeholder="Suplemento (ej: Creatina)...">
+                  <input type="number" id="stock-total" placeholder="Total dosis" style="max-width:110px;">
+                </div>
+                <div class="frow">
+                  <input type="text" id="stock-unit" placeholder="Unidad (scoops, caps)..." value="scoops" style="max-width:120px;">
+                  <input type="number" id="stock-dose" placeholder="Dosis/día" value="1" min="1" style="max-width:90px;">
+                  <input type="date" id="stock-start">
+                </div>
+                <button id="stock-add">Agregar suplemento</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="section-label" style="margin-top:0;">Conocimiento</div>
+            <div class="salud-card">
+              <div class="title">Libros</div>
+              <div id="books-list"></div>
+              <div class="add-book"><input type="text" id="book-input" placeholder="Título del libro..."><select id="book-status"><option value="pendiente">Pendiente</option><option value="leyendo">Leyendo</option><option value="terminado">Terminado</option></select><button id="book-add">+</button></div>
+            </div>
+            <div class="salud-card">
+              <div class="title">Podcasts</div>
+              <div id="podcasts-list"></div>
+              <div class="add-book"><input type="text" id="podcast-input" placeholder="Nombre del podcast..."><button id="podcast-add">+</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="calendario-view" class="view">
+        <div class="header"><div><h1>Calendario</h1></div></div>
+        <div class="calendar-page">
+          <div class="calendar-card">
+            <div class="cal-head"><div class="month" id="cal-month"></div><div class="cal-nav"><span id="cal-prev">&#8592;</span><span id="cal-next">&#8594;</span></div></div>
+            <div class="cal-weekdays"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
+            <div class="cal-days" id="cal-days"></div>
+          </div>
+          <div class="cal-event-box">
+            <div class="lbl" id="event-day-label">Seleccioná un día</div>
+            <div class="event-day-count" id="event-day-count"></div>
+            <input type="text" id="event-input" placeholder="Agregar evento...">
+            <div class="frow" style="display:flex; gap:8px; margin-bottom:8px;">
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); align-self:center;">notificar a las</span>
+              <input type="time" id="event-time" style="flex:1; margin-bottom:0;">
+            </div>
+            <button id="event-add">Agregar</button>
+            <div class="cal-event-list" id="event-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="recordatorios-view" class="view">
+        <div class="header"><div><h1>Recordatorios</h1></div></div>
+        <div class="reminders-page">
+          <div class="reminders-card">
+            <div id="reminders-list"></div>
+            <div class="add-reminder"><input type="text" id="reminder-input" placeholder="Agregar recordatorio..."><button id="reminder-add">Agregar</button></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  const MONTH_NAMES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const DAY_NAMES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  const today = new Date();
+  const monthKey = (y,m)=> y+'-'+String(m+1).padStart(2,'0');
+  const fmtKey = (y,m,d)=> y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  const money = n => 'USD ' + Number(n).toLocaleString('es-AR', {maximumFractionDigits:0});
+
+  function renderHeader(){
+    document.getElementById('today-label').textContent = DAY_NAMES[today.getDay()] + ', ' + today.getDate() + ' de ' + MONTH_NAMES[today.getMonth()];
+    document.getElementById('month-label').textContent = MONTH_NAMES[today.getMonth()].toUpperCase() + ' ' + today.getFullYear();
+  }
+
+  const CURRENT_MK = monthKey(today.getFullYear(), today.getMonth());
+  const DEFAULT_GOALS_SEED = { marca:'Terminar 1 track', trabajo:'Cerrar automatización de pagos BEP20', finanzas:'Cargar compra DCA del mes', salud:'Terminar libro actual' };
+  function loadAllGoals(){
+    const raw = localStorage.getItem('vida_goals_v2');
+    let data = raw ? JSON.parse(raw) : {};
+    if(!data[CURRENT_MK]) data[CURRENT_MK] = Object.entries(DEFAULT_GOALS_SEED).map(([area,text])=>({area,text,done:false}));
+    return data;
+  }
+  function saveAllGoals(d){ localStorage.setItem('vida_goals_v2', JSON.stringify(d)); }
+  function renderGoals(){
+    const all = loadAllGoals(); const current = all[CURRENT_MK] || [];
+    document.getElementById('goals-title').textContent = 'Metas de ' + MONTH_NAMES[today.getMonth()];
+    const list = document.getElementById('goals-list'); list.innerHTML = '';
+    current.forEach((g, idx)=>{
+      const row = document.createElement('div');
+      row.className = 'goal-row' + (g.done ? ' done':'');
+      row.innerHTML = '<input type="checkbox" '+(g.done?'checked':'')+'><span class="tag '+g.area+'">'+g.area+'</span><label>'+g.text+'</label><span class="del">&times;</span>';
+      row.querySelector('input').addEventListener('change', (e)=>{ const a=loadAllGoals(); a[CURRENT_MK][idx].done=e.target.checked; saveAllGoals(a); renderGoals(); });
+      row.querySelector('.del').addEventListener('click', ()=>{ const a=loadAllGoals(); a[CURRENT_MK].splice(idx,1); saveAllGoals(a); renderGoals(); });
+      list.appendChild(row);
+    });
+    document.getElementById('goals-count').textContent = current.filter(g=>g.done).length+'/'+current.length+' cumplidas';
+    saveAllGoals(all); renderHistory(all);
+  }
+  function renderHistory(all){
+    const box = document.getElementById('goals-history'); box.innerHTML = '';
+    Object.keys(all).filter(k=>k!==CURRENT_MK).sort().reverse().slice(0,2).forEach(k=>{
+      const [y,m] = k.split('-'); const items = all[k]; const done = items.filter(g=>g.done).length;
+      const card = document.createElement('div'); card.className = 'history-card';
+      card.innerHTML = '<div class="h-title"><span>'+MONTH_NAMES[parseInt(m)-1]+' '+y+'</span><span>'+done+'/'+items.length+'</span></div>';
+      items.forEach(g=>{ const row = document.createElement('div'); row.className = 'h-row'+(g.done?' done':''); row.innerHTML = '<span class="tag '+g.area+'" style="flex-shrink:0;">'+g.area+'</span><span>'+g.text+'</span>'; card.appendChild(row); });
+      box.appendChild(card);
+    });
+  }
+  // (agregar metas ahora se hace desde cada área, ver sistema genérico más abajo)
+
+  // METAS MENSUALES POR ÁREA (con selector de mes, sincronizado con Home)
+  function monthOptions(){
+    const arr = [];
+    for(let offset=-1; offset<=5; offset++){
+      let m = today.getMonth()+offset, y = today.getFullYear();
+      while(m<0){ m+=12; y--; } while(m>11){ m-=12; y++; }
+      arr.push({key: monthKey(y,m), label: MONTH_NAMES[m]+' '+y});
+    }
+    return arr;
+  }
+  const areaSelectedMonth = { marca:CURRENT_MK, trabajo:CURRENT_MK, finanzas:CURRENT_MK, salud:CURRENT_MK };
+  function monthLabelShort(mk){
+    const [y,m] = mk.split('-');
+    return MONTH_NAMES[parseInt(m)-1].slice(0,3) + ' ' + y;
+  }
+  function renderAreaGoalsUI(area){
+    const select = document.getElementById(area+'-goal-month');
+    if(!select) return;
+    if(select.options.length===0){
+      monthOptions().forEach(opt=>{
+        const o=document.createElement('option'); o.value=opt.key; o.textContent=opt.label;
+        select.appendChild(o);
+      });
+      select.value = areaSelectedMonth[area];
+    }
+    const all = loadAllGoals();
+    const container = document.getElementById(area+'-goals-list');
+    container.innerHTML = '';
+    const monthKeys = Object.keys(all).sort();
+    let any = false;
+    monthKeys.forEach(mk=>{
+      all[mk].forEach((g, realIdx)=>{
+        if(g.area !== area) return;
+        any = true;
+        const row = document.createElement('div'); row.className='goal-row'+(g.done?' done':'');
+        row.innerHTML = '<input type="checkbox" '+(g.done?'checked':'')+'><label>'+g.text+'</label><span class="month-tag">'+monthLabelShort(mk)+'</span><span class="del">&times;</span>';
+        row.querySelector('input').addEventListener('change',(e)=>{ const a=loadAllGoals(); a[mk][realIdx].done=e.target.checked; saveAllGoals(a); renderAreaGoalsUI(area); if(mk===CURRENT_MK) renderGoals(); });
+        row.querySelector('.del').addEventListener('click',()=>{ const a=loadAllGoals(); a[mk].splice(realIdx,1); saveAllGoals(a); renderAreaGoalsUI(area); if(mk===CURRENT_MK) renderGoals(); });
+        container.appendChild(row);
+      });
+    });
+    if(!any) container.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">Sin metas cargadas todavía.</div>';
+  }
+  document.querySelectorAll('.area-goal-add').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const area = btn.dataset.area;
+      const input = document.getElementById(area+'-goal-input');
+      const select = document.getElementById(area+'-goal-month');
+      if(!input.value.trim()) return;
+      const mk = select.value;
+      const all = loadAllGoals();
+      if(!all[mk]) all[mk] = [];
+      all[mk].push({area, text: input.value.trim(), done:false});
+      saveAllGoals(all);
+      input.value = '';
+      renderAreaGoalsUI(area);
+      if(mk===CURRENT_MK) renderGoals();
+    });
+  });
+
+  let calYear = today.getFullYear(), calMonth = today.getMonth(), selectedDate = null;
+  const loadEvents = ()=> JSON.parse(localStorage.getItem('vida_events')||'{}');
+  const saveEvents = ev => localStorage.setItem('vida_events', JSON.stringify(ev));
+  function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+  function evText(e){ return typeof e === 'string' ? e : e.text; }
+  function evTime(e){ return typeof e === 'string' ? null : (e.time || null); }
+  function renderCalendar(){
+    document.getElementById('cal-month').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+    const firstDay = new Date(calYear, calMonth, 1); let startOffset = firstDay.getDay()-1; if(startOffset<0) startOffset=6;
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate(); const events = loadEvents();
+    const grid = document.getElementById('cal-days'); grid.innerHTML = '';
+    for(let i=0;i<startOffset;i++){ const e=document.createElement('div'); e.className='cal-day empty'; grid.appendChild(e); }
+    for(let d=1; d<=daysInMonth; d++){
+      const cell = document.createElement('div'); cell.className='cal-day';
+      const key = fmtKey(calYear, calMonth, d);
+      const dayEvents = events[key] || [];
+      if(calYear===today.getFullYear() && calMonth===today.getMonth() && d===today.getDate()) cell.classList.add('today');
+      if(key===selectedDate) cell.classList.add('selected');
+      let evHtml = '<div class="day-events">';
+      dayEvents.slice(0,2).forEach(e=>{ const t=evTime(e); evHtml += '<div class="day-ev-item">'+(t?t+' · ':'')+esc(evText(e))+'</div>'; });
+      if(dayEvents.length>2) evHtml += '<div class="day-ev-more">+'+(dayEvents.length-2)+' más</div>';
+      evHtml += '</div>';
+      cell.innerHTML = '<span class="day-num">'+d+'</span>' + evHtml;
+      cell.addEventListener('click', ()=> selectDay(calYear, calMonth, d));
+      grid.appendChild(cell);
+    }
+  }
+  function updateDayCount(){
+    const c = (loadEvents()[selectedDate]||[]).length;
+    document.getElementById('event-day-count').textContent = c===0 ? 'Sin eventos cargados' : c+' evento'+(c>1?'s':'')+' cargado'+(c>1?'s':'');
+  }
+  function selectDay(y,m,d){
+    selectedDate = fmtKey(y,m,d); const dateObj = new Date(y,m,d);
+    document.getElementById('event-day-label').textContent = DAY_NAMES[dateObj.getDay()]+' '+d+' de '+MONTH_NAMES[m];
+    updateDayCount();
+    renderEventList(); renderCalendar();
+  }
+  function renderEventList(){
+    const list = document.getElementById('event-list'); list.innerHTML=''; if(!selectedDate) return;
+    const events = loadEvents();
+    (events[selectedDate]||[]).forEach((e, idx)=>{
+      const t = evTime(e);
+      const row = document.createElement('div'); row.className='ev';
+      row.innerHTML = '<span>'+(t?'<span style="color:var(--signal); font-family:var(--font-mono); font-size:11px;">'+t+'</span> · ':'')+evText(e)+'</span><span class="x" data-idx="'+idx+'">&times;</span>';
+      row.querySelector('.x').addEventListener('click', ()=>{
+        const ev=loadEvents(); ev[selectedDate].splice(idx,1); saveEvents(ev);
+        updateDayCount(); renderEventList(); renderCalendar();
+      });
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('event-add').addEventListener('click', ()=>{
+    if(!selectedDate) return;
+    const input = document.getElementById('event-input'); if(!input.value.trim()) return;
+    const timeInput = document.getElementById('event-time');
+    const ev = loadEvents(); ev[selectedDate] = ev[selectedDate] || [];
+    ev[selectedDate].push({ text: input.value.trim(), time: timeInput.value || null });
+    saveEvents(ev); input.value=''; timeInput.value='';
+    updateDayCount(); renderEventList(); renderCalendar();
+  });
+  document.getElementById('cal-prev').addEventListener('click', ()=>{ calMonth--; if(calMonth<0){calMonth=11; calYear--;} renderCalendar(); });
+  document.getElementById('cal-next').addEventListener('click', ()=>{ calMonth++; if(calMonth>11){calMonth=0; calYear++;} renderCalendar(); });
+
+  const loadReminders = ()=> JSON.parse(localStorage.getItem('vida_reminders')||'[]');
+  const saveReminders = r => localStorage.setItem('vida_reminders', JSON.stringify(r));
+  function renderReminders(){
+    const items = loadReminders(); const list = document.getElementById('reminders-list'); list.innerHTML='';
+    items.forEach((r, idx)=>{
+      const row = document.createElement('div'); row.className='rem-row'+(r.done?' done':'');
+      row.innerHTML = '<input type="checkbox" '+(r.done?'checked':'')+'><span class="txt">'+r.text+'</span><span class="del">&times;</span>';
+      row.querySelector('input').addEventListener('change',(e)=>{ const rs=loadReminders(); rs[idx].done=e.target.checked; saveReminders(rs); renderReminders(); });
+      row.querySelector('.del').addEventListener('click',()=>{ const rs=loadReminders(); rs.splice(idx,1); saveReminders(rs); renderReminders(); });
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('reminder-add').addEventListener('click', ()=>{
+    const input = document.getElementById('reminder-input'); if(!input.value.trim()) return;
+    const rs = loadReminders(); rs.push({text:input.value.trim(), done:false}); saveReminders(rs); input.value=''; renderReminders(); renderHomeReminders();
+  });
+
+  function renderHomeReminders(){
+    const box = document.getElementById('home-reminders-list');
+    if(!box) return;
+    const items = loadReminders();
+    box.innerHTML = '';
+    if(!items.length){ box.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">Sin recordatorios cargados.</div>'; return; }
+    items.slice(0,5).forEach((r, idx)=>{
+      const row = document.createElement('div'); row.className='goal-row'+(r.done?' done':'');
+      row.innerHTML = '<input type="checkbox" '+(r.done?'checked':'')+'><label>'+r.text+'</label>';
+      row.querySelector('input').addEventListener('change',(e)=>{ const rs=loadReminders(); rs[idx].done=e.target.checked; saveReminders(rs); renderHomeReminders(); renderReminders(); });
+      box.appendChild(row);
+    });
+  }
+
+  const DEFAULT_WEEKS = { 1:[{text:'Subir clip DJ', done:true}], 2:[{text:'Arreglo track julio', done:false}], 3:[{text:'Clase modular #3', done:false}], 4:[{text:'Cierre mensual', done:false}] };
+  const loadWeeks = ()=> JSON.parse(localStorage.getItem('vida_weeks')|| JSON.stringify(DEFAULT_WEEKS));
+  const saveWeeks = w => localStorage.setItem('vida_weeks', JSON.stringify(w));
+  function renderWeeks(){
+    const weeks = loadWeeks(); const grid = document.getElementById('week-grid'); grid.innerHTML='';
+    [1,2,3,4].forEach(wk=>{
+      const tasks = weeks[wk] || []; const done = tasks.filter(t=>t.done).length;
+      const card = document.createElement('div'); card.className='week-card';
+      card.innerHTML = `<div class="wk-head"><div class="wk">SEMANA ${wk}</div><div class="wk-count">${done}/${tasks.length}</div></div><div class="task-list" id="tasklist-${wk}"></div><div class="add-task"><input type="text" id="addinput-${wk}" placeholder="Nueva tarea..."><button data-wk="${wk}">+</button></div>`;
+      grid.appendChild(card);
+      const tl = card.querySelector('#tasklist-'+wk);
+      tasks.forEach((t, idx)=>{
+        const row = document.createElement('div'); row.className='task'+(t.done?' done':'');
+        row.innerHTML = '<input type="checkbox" '+(t.done?'checked':'')+'><span class="txt">'+t.text+'</span><span class="del">&times;</span>';
+        row.querySelector('input').addEventListener('change',(e)=>{ const ws=loadWeeks(); ws[wk][idx].done=e.target.checked; saveWeeks(ws); renderWeeks(); });
+        row.querySelector('.del').addEventListener('click',()=>{ const ws=loadWeeks(); ws[wk].splice(idx,1); saveWeeks(ws); renderWeeks(); });
+        tl.appendChild(row);
+      });
+      card.querySelector('button[data-wk="'+wk+'"]').addEventListener('click', ()=>{
+        const input = card.querySelector('#addinput-'+wk); if(!input.value.trim()) return;
+        const ws = loadWeeks(); ws[wk]=ws[wk]||[]; ws[wk].push({text:input.value.trim(), done:false}); saveWeeks(ws); renderWeeks();
+      });
+    });
+  }
+
+  const BOARD_COLS = ['Idea','Grabando','Editando','Publicado'];
+  const loadBoard = ()=> JSON.parse(localStorage.getItem('vida_board')|| JSON.stringify({Idea:[],Grabando:[],Editando:[],Publicado:[]}));
+  const saveBoard = b => localStorage.setItem('vida_board', JSON.stringify(b));
+  function renderBoard(){
+    const board = loadBoard(); const wrap = document.getElementById('board'); wrap.innerHTML='';
+    BOARD_COLS.forEach((col, colIdx)=>{
+      const cards = board[col] || [];
+      const colEl = document.createElement('div'); colEl.className='board-col';
+      colEl.innerHTML = '<div class="col-title"><span>'+col+'</span><span>'+cards.length+'</span></div>';
+      const listEl = document.createElement('div'); colEl.appendChild(listEl);
+      cards.forEach((card, idx)=>{
+        const c = document.createElement('div'); c.className='board-card';
+        const next = BOARD_COLS[colIdx+1];
+        c.innerHTML = '<div>'+card+'</div><div class="bc-actions">'+(next?'<span data-act="next">→ '+next+'</span>':'<span></span>')+'<span data-act="del">eliminar</span></div>';
+        if(next) c.querySelector('[data-act="next"]').addEventListener('click', ()=>{ const b=loadBoard(); const item=b[col].splice(idx,1)[0]; b[next]=b[next]||[]; b[next].push(item); saveBoard(b); renderBoard(); });
+        c.querySelector('[data-act="del"]').addEventListener('click', ()=>{ const b=loadBoard(); b[col].splice(idx,1); saveBoard(b); renderBoard(); });
+        listEl.appendChild(c);
+      });
+      const addRow = document.createElement('div'); addRow.className='board-add';
+      addRow.innerHTML = '<input type="text" placeholder="Nueva idea..." id="badd-'+col+'"><button data-col="'+col+'">+</button>';
+      colEl.appendChild(addRow);
+      colEl.querySelector('button[data-col="'+col+'"]').addEventListener('click', ()=>{
+        const input = colEl.querySelector('#badd-'+col); if(!input.value.trim()) return;
+        const b = loadBoard(); b[col]=b[col]||[]; b[col].push(input.value.trim()); saveBoard(b); renderBoard();
+      });
+      wrap.appendChild(colEl);
+    });
+  }
+
+  const loadTracks = ()=> JSON.parse(localStorage.getItem('vida_tracks')||'[]');
+  const saveTracks = t => localStorage.setItem('vida_tracks', JSON.stringify(t));
+  const TRACK_STATUSES = ['Idea','Arreglo','Mezcla','Master','Entregado'];
+  function renderTracks(){
+    const tracks = loadTracks(); const list = document.getElementById('tracks-list'); list.innerHTML='';
+    tracks.forEach((t, idx)=>{
+      const row = document.createElement('div'); row.className='book-row';
+      row.innerHTML = '<span class="b-title">'+t.name+'</span><select>'+TRACK_STATUSES.map(s=>'<option '+(s===t.status?'selected':'')+'>'+s+'</option>').join('')+'</select><span class="del">&times;</span>';
+      row.querySelector('select').addEventListener('change',(e)=>{ const ts=loadTracks(); ts[idx].status=e.target.value; saveTracks(ts); renderTracks(); });
+      row.querySelector('.del').addEventListener('click',()=>{ const ts=loadTracks(); ts.splice(idx,1); saveTracks(ts); renderTracks(); });
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('track-add').addEventListener('click', ()=>{
+    const input = document.getElementById('track-input'); if(!input.value.trim()) return;
+    const ts = loadTracks(); ts.push({name:input.value.trim(), status:'Idea'}); saveTracks(ts); input.value=''; renderTracks();
+  });
+
+  document.querySelectorAll('.subtab').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      document.querySelectorAll('.subtab').forEach(s=>s.classList.remove('active'));
+      document.querySelectorAll('.subview').forEach(s=>s.classList.remove('visible'));
+      el.classList.add('active');
+      document.getElementById('sub-'+el.dataset.sub).classList.add('visible');
+    });
+  });
+
+  // (metas de trabajo migradas al sistema genérico de metas por área, ver más abajo)
+
+  let pfFilter = 'todos';
+  const PF_TIPOS = ['facturacion','equipo','conectividad','cliente'];
+  const loadPortfolio = ()=> JSON.parse(localStorage.getItem('vida_portfolio')||'[]');
+  const savePortfolio = p => localStorage.setItem('vida_portfolio', JSON.stringify(p));
+  const PF_LABELS = { todos:'Todos', facturacion:'Facturación', equipo:'Equipo', conectividad:'Conectividad', cliente:'Cliente' };
+  function renderPfFilters(){
+    const box = document.getElementById('pf-filters'); box.innerHTML='';
+    ['todos',...PF_TIPOS].forEach(t=>{
+      const btn = document.createElement('div'); btn.className='filter-btn'+(t===pfFilter?' active':''); btn.textContent=PF_LABELS[t]||t;
+      btn.addEventListener('click', ()=>{ pfFilter=t; renderPfFilters(); renderPortfolio(); });
+      box.appendChild(btn);
+    });
+  }
+  function renderPortfolio(){
+    const items = loadPortfolio(); const grid = document.getElementById('pf-grid'); grid.innerHTML='';
+    items.filter(it=> pfFilter==='todos' || it.tipo===pfFilter).forEach((it)=>{
+      const realIdx = items.indexOf(it);
+      const card = document.createElement('div'); card.className='pf-card';
+      card.innerHTML = '<span class="pf-date">'+(it.fecha||'')+'</span><div class="pf-tag">'+(PF_LABELS[it.tipo]||it.tipo)+'</div><div class="pf-title">'+it.titulo+'</div>'
+        + '<div class="pf-label">Problema</div><div class="pf-text">'+(it.problema||'—')+'</div>'
+        + (it.archivoProblema ? '<a class="pf-file" href="'+it.archivoProblema.data+'" download="'+it.archivoProblema.name+'">&#128206; '+it.archivoProblema.name+'</a>' : '')
+        + '<div class="pf-label">Solución</div><div class="pf-text">'+(it.solucion||'—')+'</div>'
+        + (it.archivoSolucion ? '<a class="pf-file" href="'+it.archivoSolucion.data+'" download="'+it.archivoSolucion.name+'">&#128206; '+it.archivoSolucion.name+'</a>' : '')
+        + '<span class="pf-del">eliminar</span>';
+      card.querySelector('.pf-del').addEventListener('click', ()=>{ const p=loadPortfolio(); p.splice(realIdx,1); savePortfolio(p); renderPortfolio(); });
+      grid.appendChild(card);
+    });
+  }
+  function readFileAsData(fileInput){
+    return new Promise((resolve)=>{
+      if(fileInput.files && fileInput.files[0]){
+        const f = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = () => resolve({name:f.name, data:reader.result});
+        reader.readAsDataURL(f);
+      } else { resolve(null); }
+    });
+  }
+  document.getElementById('pf-add').addEventListener('click', async ()=>{
+    const tipo = document.getElementById('pf-tipo').value;
+    const titulo = document.getElementById('pf-titulo').value.trim();
+    const problema = document.getElementById('pf-problema').value.trim();
+    const solucion = document.getElementById('pf-solucion').value.trim();
+    const fotoProblemaInput = document.getElementById('pf-foto-problema');
+    const fotoSolucionInput = document.getElementById('pf-foto-solucion');
+    if(!titulo) return;
+    const archivoProblema = await readFileAsData(fotoProblemaInput);
+    const archivoSolucion = await readFileAsData(fotoSolucionInput);
+    const fecha = today.getDate()+' '+MONTH_NAMES[today.getMonth()].slice(0,3)+' '+today.getFullYear();
+    const p = loadPortfolio();
+    p.unshift({tipo, titulo, problema, solucion, archivoProblema, archivoSolucion, fecha});
+    savePortfolio(p);
+    document.getElementById('pf-titulo').value=''; document.getElementById('pf-problema').value=''; document.getElementById('pf-solucion').value='';
+    fotoProblemaInput.value=''; fotoSolucionInput.value='';
+    renderPortfolio();
+  });
+
+  const loadAssets = ()=> JSON.parse(localStorage.getItem('vida_assets')||'[{"name":"USDT","amount":19000,"date":""},{"name":"PayPal","amount":188,"date":""}]');
+  const saveAssets = a => localStorage.setItem('vida_assets', JSON.stringify(a));
+  const loadPurchases = ()=> JSON.parse(localStorage.getItem('vida_purchases')||'[]');
+  const savePurchases = p => localStorage.setItem('vida_purchases', JSON.stringify(p));
+
+  function renderAssets(){
+    const assets = loadAssets(); const list = document.getElementById('assets-list'); list.innerHTML='';
+    assets.forEach((a, idx)=>{
+      const row = document.createElement('div'); row.className='asset-row';
+      row.innerHTML = '<span class="a-name">'+a.name+(a.date?' · <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted);">'+a.date+'</span>':'')+'</span><span class="a-amt">USD '+Number(a.amount).toLocaleString('es-AR')+'</span><span class="del">&times;</span>';
+      row.querySelector('.del').addEventListener('click', ()=>{ const as=loadAssets(); as.splice(idx,1); saveAssets(as); renderAssets(); renderPatrimonio(); });
+      list.appendChild(row);
+    });
+    renderPatrimonio();
+  }
+  document.getElementById('asset-add').addEventListener('click', ()=>{
+    const name = document.getElementById('asset-name').value.trim();
+    const amount = parseFloat(document.getElementById('asset-amount').value);
+    if(!name || isNaN(amount)) return;
+    const date = today.getDate()+' '+MONTH_NAMES[today.getMonth()].slice(0,3)+' '+today.getFullYear();
+    const as = loadAssets(); as.unshift({name, amount, date}); saveAssets(as);
+    document.getElementById('asset-name').value=''; document.getElementById('asset-amount').value='';
+    renderAssets();
+  });
+
+  function renderPurchases(){
+    const purchases = loadPurchases(); const list = document.getElementById('purchases-list'); list.innerHTML='';
+    if(!purchases.length){ list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">Sin compras cargadas.</div>'; return; }
+    purchases.forEach((p, idx)=>{
+      const row = document.createElement('div'); row.className='purchase-row';
+      let liveHtml = '';
+      const currentPrice = LIVE_PRICES[p.asset];
+      if(currentPrice){
+        const currentVal = p.qty * currentPrice;
+        const pct = ((currentVal - p.usd) / p.usd) * 100;
+        const cls = pct>=0 ? 'up' : 'down';
+        liveHtml = ' · valor hoy <span class="lp-chg '+cls+'" style="display:inline;">$'+currentVal.toLocaleString('es-AR',{maximumFractionDigits:0})+' ('+(pct>=0?'+':'')+pct.toFixed(1)+'%)</span>';
+      }
+      row.innerHTML = '<div class="p-info"><div class="p-asset">'+p.asset+' · $'+Number(p.usd).toLocaleString('es-AR')+'</div><div class="p-detail">'+p.date+' · precio compra $'+p.price.toLocaleString('es-AR')+' · '+p.qty.toFixed(6)+' unidades'+liveHtml+'</div></div><span class="del">&times;</span>';
+      row.querySelector('.del').addEventListener('click', ()=>{ const ps=loadPurchases(); ps.splice(idx,1); savePurchases(ps); renderPurchases(); renderPatrimonio(); });
+      list.appendChild(row);
+    });
+  }
+  const purchaseAssetSelect = document.getElementById('purchase-asset');
+  const purchaseAssetCustom = document.getElementById('purchase-asset-custom');
+  purchaseAssetSelect.addEventListener('change', ()=>{ purchaseAssetCustom.style.display = purchaseAssetSelect.value==='Otro' ? 'block' : 'none'; });
+  document.getElementById('purchase-add').addEventListener('click', ()=>{
+    const usd = parseFloat(document.getElementById('purchase-usd').value);
+    const price = parseFloat(document.getElementById('purchase-price').value);
+    let asset = purchaseAssetSelect.value;
+    if(asset==='Otro') asset = purchaseAssetCustom.value.trim() || 'Otro';
+    if(!usd || !price) return;
+    const qty = usd / price;
+    const date = today.getDate()+' '+MONTH_NAMES[today.getMonth()].slice(0,3)+' '+today.getFullYear();
+    const ps = loadPurchases(); ps.unshift({asset, usd, price, qty, date}); savePurchases(ps);
+    document.getElementById('purchase-usd').value=''; document.getElementById('purchase-price').value=''; purchaseAssetCustom.value='';
+    renderPurchases(); renderPatrimonio();
+  });
+
+  function renderPatrimonio(){
+    const map = {};
+    loadAssets().forEach(a=>{ map[a.name] = (map[a.name]||0) + Number(a.amount); });
+    loadPurchases().forEach(p=>{ map[p.asset] = (map[p.asset]||0) + Number(p.usd); });
+    const total = Object.values(map).reduce((s,v)=>s+v, 0);
+    document.getElementById('patrimonio-total').textContent = money(total);
+    const breakdown = document.getElementById('patrimonio-breakdown');
+    const entries = Object.entries(map).filter(([k,v])=>v>0);
+    breakdown.textContent = entries.length ? entries.map(([name,val])=> name+': $'+Math.round(val).toLocaleString('es-AR')).join('  ·  ') : 'Sin activos cargados';
+    renderPie(map, total);
+  }
+  function renderPie(map, total){
+    const palette = ['#00E6A0','#8B7FFF','#FFB020','#FF6B57','#3AA6FF','#FF4FD8','#B7FF00','#FF9F1C'];
+    const entries = Object.entries(map).filter(([k,v])=>v>0);
+    const pie = document.getElementById('pie-chart'); const legend = document.getElementById('pie-legend');
+    if(!entries.length || total<=0){
+      pie.style.background = 'var(--bg-2)';
+      legend.innerHTML = '<div style="font-size:12px;color:var(--text-muted);">Sin activos cargados todavía.</div>';
+      return;
+    }
+    let cum = 0; const stops = [];
+    entries.forEach(([name,val], i)=>{
+      const pct = (val/total)*100; const color = palette[i % palette.length];
+      stops.push(color+' '+cum+'% '+(cum+pct)+'%'); cum += pct;
+    });
+    pie.style.background = 'conic-gradient('+stops.join(', ')+')';
+    legend.innerHTML = '';
+    entries.forEach(([name,val], i)=>{
+      const pct = ((val/total)*100).toFixed(1); const color = palette[i % palette.length];
+      const row = document.createElement('div'); row.className='pie-legend-row';
+      row.innerHTML = '<span class="pie-swatch" style="background:'+color+';"></span><span class="pl-name">'+name+'</span><span class="pl-val">$'+Math.round(val).toLocaleString('es-AR')+' · '+pct+'%</span>';
+      legend.appendChild(row);
+    });
+  }
+
+  const todayISO = fmtKey(today.getFullYear(), today.getMonth(), today.getDate());
+  const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  function daysBetween(a,b){ return Math.round((b-a)/86400000); }
+  function computeRemaining(item){
+    const start = new Date(item.startDate+'T00:00:00');
+    const elapsed = Math.max(0, daysBetween(start, todayDateOnly));
+    return Math.max(0, item.total - elapsed*item.dailyDose);
+  }
+  const STOCK_DEFAULT = [
+    {name:'Creatina', unit:'scoops', total:60, dailyDose:1, startDate: todayISO},
+    {name:'Magnesio glicinato', unit:'caps', total:60, dailyDose:1, startDate: todayISO},
+    {name:'D3+K2', unit:'caps', total:60, dailyDose:1, startDate: todayISO},
+    {name:'Omega-3', unit:'caps', total:90, dailyDose:1, startDate: todayISO},
+  ];
+  const loadStock = ()=> JSON.parse(localStorage.getItem('vida_stock')|| JSON.stringify(STOCK_DEFAULT));
+  const saveStock = s => localStorage.setItem('vida_stock', JSON.stringify(s));
+  function renderStock(){
+    const stock = loadStock(); const list = document.getElementById('stock-list'); list.innerHTML='';
+    stock.forEach((s, idx)=>{
+      const remaining = computeRemaining(s);
+      const pct = Math.max(0, Math.min(100, (remaining / s.total) * 100));
+      const low = remaining <= s.total * 0.15;
+      const daysLeft = s.dailyDose > 0 ? Math.floor(remaining / s.dailyDose) : remaining;
+      const item = document.createElement('div'); item.className='stock-item';
+      item.innerHTML = `
+        <div class="si-top">
+          <span class="si-name">${s.name}</span>
+          <span class="si-remain">quedan <span class="n ${low?'low':''}">${remaining}</span> / ${s.total} ${s.unit}</span>
+        </div>
+        <div class="stock-bar"><div class="stock-bar-fill" style="width:${pct}%; ${low?'background:var(--down);':''}"></div></div>
+        <div class="si-actions">
+          <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted);">${s.dailyDose}/día · alcanza ~${daysLeft}d más</span>
+          <button data-act="refill">rellenar</button>
+          <span class="si-del" data-act="del">eliminar</span>
+        </div>`;
+      item.querySelector('[data-act="refill"]').addEventListener('click', ()=>{
+        const st = loadStock(); st[idx].startDate = todayISO; saveStock(st); renderStock();
+      });
+      item.querySelector('[data-act="del"]').addEventListener('click', ()=>{
+        const st = loadStock(); st.splice(idx,1); saveStock(st); renderStock();
+      });
+      list.appendChild(item);
+    });
+  }
+  document.getElementById('stock-start').value = todayISO;
+  document.getElementById('stock-add').addEventListener('click', ()=>{
+    const name = document.getElementById('stock-name').value.trim();
+    const total = parseInt(document.getElementById('stock-total').value);
+    const unit = document.getElementById('stock-unit').value.trim() || 'dosis';
+    const dailyDose = parseInt(document.getElementById('stock-dose').value) || 1;
+    const startDate = document.getElementById('stock-start').value || todayISO;
+    if(!name || !total) return;
+    const st = loadStock(); st.push({name, unit, total, dailyDose, startDate}); saveStock(st);
+    document.getElementById('stock-name').value=''; document.getElementById('stock-total').value='';
+    document.getElementById('stock-start').value = todayISO;
+    renderStock();
+  });
+  const loadBooks = ()=> JSON.parse(localStorage.getItem('vida_books')||'[]');
+  const saveBooks = b => localStorage.setItem('vida_books', JSON.stringify(b));
+  function renderBooks(){
+    const books = loadBooks(); const list = document.getElementById('books-list'); list.innerHTML='';
+    books.forEach((b, idx)=>{
+      const row = document.createElement('div'); row.className='book-row '+b.status;
+      row.innerHTML = '<span class="b-title">'+b.title+'</span><select><option '+(b.status==='pendiente'?'selected':'')+'>pendiente</option><option '+(b.status==='leyendo'?'selected':'')+'>leyendo</option><option '+(b.status==='terminado'?'selected':'')+'>terminado</option></select><span class="del">&times;</span>';
+      row.querySelector('select').addEventListener('change',(e)=>{ const bs=loadBooks(); bs[idx].status=e.target.value; saveBooks(bs); renderBooks(); });
+      row.querySelector('.del').addEventListener('click',()=>{ const bs=loadBooks(); bs.splice(idx,1); saveBooks(bs); renderBooks(); });
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('book-add').addEventListener('click', ()=>{
+    const input = document.getElementById('book-input'); const status = document.getElementById('book-status').value;
+    if(!input.value.trim()) return;
+    const bs = loadBooks(); bs.push({title:input.value.trim(), status}); saveBooks(bs); input.value=''; renderBooks();
+  });
+  const loadPodcasts = ()=> JSON.parse(localStorage.getItem('vida_podcasts_log')||'[]');
+  const savePodcasts = p => localStorage.setItem('vida_podcasts_log', JSON.stringify(p));
+  function renderPodcasts(){
+    const items = loadPodcasts(); const list = document.getElementById('podcasts-list'); list.innerHTML='';
+    if(!items.length){ list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:6px 0;">Sin podcasts cargados.</div>'; return; }
+    items.forEach((p, idx)=>{
+      const row = document.createElement('div'); row.className='book-row';
+      row.innerHTML = '<span class="b-title">'+p.title+'</span><span style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted);">'+p.date+'</span><span class="del">&times;</span>';
+      row.querySelector('.del').addEventListener('click',()=>{ const ps=loadPodcasts(); ps.splice(idx,1); savePodcasts(ps); renderPodcasts(); });
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('podcast-add').addEventListener('click', ()=>{
+    const input = document.getElementById('podcast-input'); if(!input.value.trim()) return;
+    const date = today.getDate()+' '+MONTH_NAMES[today.getMonth()].slice(0,3)+' '+today.getFullYear();
+    const ps = loadPodcasts(); ps.unshift({title:input.value.trim(), date}); savePodcasts(ps);
+    input.value=''; renderPodcasts();
+  });
+
+  function goTo(view){
+    document.querySelectorAll('.nav-link').forEach(el=> el.classList.toggle('active', el.dataset.nav===view));
+    document.querySelectorAll('.view').forEach(el=> el.classList.remove('visible'));
+    document.getElementById(view+'-view').classList.add('visible');
+  }
+  document.querySelectorAll('[data-nav]').forEach(el=>{ el.addEventListener('click', ()=> goTo(el.dataset.nav)); });
+
+  // PRECIOS EN VIVO — fetch real desde APIs públicas (corre en el navegador del usuario)
+  let LIVE_PRICES = {}; // { 'Bitcoin': 61240, 'HYPE': 38.2, 'Solana': 142.5, 'Dólar blue': 1325, 'Dólar cripto': 1318 }
+  let LIVE_CHANGE = {}; // % de cambio 24hs cuando esté disponible
+
+  async function fetchLivePrices(){
+    const results = {};
+    const changes = {};
+    // Dólar blue y cripto (dolarapi.com)
+    try{
+      const [blueRes, criptoRes] = await Promise.all([
+        fetch('https://dolarapi.com/v1/dolares/blue'),
+        fetch('https://dolarapi.com/v1/dolares/cripto')
+      ]);
+      const blue = await blueRes.json();
+      const cripto = await criptoRes.json();
+      results['Dólar blue'] = blue.venta;
+      results['Dólar cripto'] = cripto.venta;
+    }catch(e){ console.warn('No se pudo obtener dólar', e); }
+    // Bitcoin, HYPE, Solana (CoinGecko)
+    try{
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,hyperliquid,solana&vs_currencies=usd&include_24hr_change=true');
+      const data = await res.json();
+      if(data.bitcoin){ results['Bitcoin'] = data.bitcoin.usd; changes['Bitcoin'] = data.bitcoin.usd_24h_change; }
+      if(data.hyperliquid){ results['HYPE'] = data.hyperliquid.usd; changes['HYPE'] = data.hyperliquid.usd_24h_change; }
+      if(data.solana){ results['Solana'] = data.solana.usd; changes['Solana'] = data.solana.usd_24h_change; }
+    }catch(e){ console.warn('No se pudo obtener precios cripto', e); }
+    LIVE_PRICES = results; LIVE_CHANGE = changes;
+    return results;
+  }
+
+  function fmtPrice(v, decimals){
+    if(v===undefined || v===null) return '—';
+    return '$'+Number(v).toLocaleString('es-AR', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+  }
+
+  function renderTicker(){
+    const box = document.getElementById('ticker-content');
+    const order = ['Dólar blue','Dólar cripto','Bitcoin','HYPE','Solana'];
+    const decimals = { 'Dólar blue':2, 'Dólar cripto':2, 'Bitcoin':0, 'HYPE':2, 'Solana':2 };
+    const items = order.map(name=>{
+      const val = LIVE_PRICES[name];
+      const chg = LIVE_CHANGE[name];
+      const chgHtml = (chg!==undefined) ? ' <span class="val '+(chg>=0?'up':'down')+'" style="margin-left:2px;">'+(chg>=0?'↑':'↓')+' '+Math.abs(chg).toFixed(1)+'%</span>' : '';
+      return '<span class="ticker-item"><span class="dot"></span>'+name.toUpperCase()+' <span class="val">'+fmtPrice(val, decimals[name])+'</span>'+chgHtml+'</span>';
+    }).join('');
+    box.innerHTML = items + items; // duplicado para el scroll infinito
+    document.getElementById('ticker-note').textContent = 'actualizado ' + new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function renderLivePrices(){
+    const box = document.getElementById('live-prices');
+    if(!box) return;
+    const order = ['Dólar blue','Dólar cripto','Bitcoin','HYPE','Solana'];
+    const decimals = { 'Dólar blue':2, 'Dólar cripto':2, 'Bitcoin':0, 'HYPE':2, 'Solana':2 };
+    box.innerHTML = order.map(name=>{
+      const val = LIVE_PRICES[name];
+      const chg = LIVE_CHANGE[name];
+      const chgHtml = (chg!==undefined) ? '<div class="lp-chg '+(chg>=0?'up':'down')+'">'+(chg>=0?'↑':'↓')+' '+Math.abs(chg).toFixed(1)+'% (24h)</div>' : '';
+      return '<div class="live-price-card"><div class="lp-name">'+name+'</div><div class="lp-val">'+fmtPrice(val, decimals[name])+'</div>'+chgHtml+'</div>';
+    }).join('');
+    const updated = document.getElementById('live-updated');
+    if(updated) updated.innerHTML = 'actualizado ' + new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) + ' · <span class="refresh-btn" id="refresh-prices">actualizar ahora</span>';
+    const refreshBtn = document.getElementById('refresh-prices');
+    if(refreshBtn) refreshBtn.addEventListener('click', loadAndRenderPrices);
+  }
+
+  async function loadAndRenderPrices(){
+    await fetchLivePrices();
+    renderTicker();
+    renderLivePrices();
+    renderPurchases(); // para refrescar valor actual / ganancia de las compras
+  }
+  loadAndRenderPrices();
+  setInterval(loadAndRenderPrices, 60000); // refresca cada 60s mientras la página esté abierta
+
+  renderHeader(); renderGoals(); renderCalendar(); renderReminders(); renderHomeReminders(); renderWeeks();
+  renderBoard(); renderTracks(); renderPfFilters(); renderPortfolio();
+  renderAssets(); renderPurchases(); renderStock(); renderBooks(); renderPodcasts();
+  ['marca','trabajo','finanzas','salud'].forEach(renderAreaGoalsUI);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW no registrado', err));
+    });
+  }
+</script>
+</body>
+</html>
