@@ -331,6 +331,36 @@
     .mnav-item.active{ color:var(--signal); }
     .mnav-item .mic{ font-size:17px; }
   }
+
+  /* ===== TILES (nuevo diseño) ===== */
+  .tile-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px; margin-top:24px; }
+  .tile{ position:relative; background:var(--bg-1); border:1px solid var(--border); border-radius:20px; padding:22px; min-height:200px; display:flex; flex-direction:column; justify-content:space-between; cursor:pointer; overflow:hidden; transition:transform .15s, border-color .15s; }
+  .tile::before{ content:''; position:absolute; inset:0; background:radial-gradient(circle at 0% 0%, var(--tc-dim) 0%, transparent 65%); opacity:.9; pointer-events:none; }
+  .tile > *{ position:relative; }
+  .tile:hover{ transform:translateY(-3px); border-color:var(--tc); }
+  .tile:active{ transform:scale(.98); }
+  .tile .t-ic{ width:48px; height:48px; border-radius:14px; background:var(--tc-dim); color:var(--tc); display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .tile .t-name{ font-family:var(--font-display); font-size:22px; font-weight:600; letter-spacing:-0.01em; }
+  .tile .t-meta{ font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); margin-top:6px; }
+  .tile.standby{ opacity:.45; }
+  .tile.t-marca{ --tc:var(--marca); --tc-dim:var(--marca-dim); }
+  .tile.t-trabajo{ --tc:var(--trabajo); --tc-dim:var(--trabajo-dim); }
+  .tile.t-rec{ --tc:var(--signal); --tc-dim:var(--signal-dim); }
+  .tile.t-mails{ --tc:#5BC0FF; --tc-dim:#10283A; }
+  .tile.t-gray{ --tc:var(--text-secondary); --tc-dim:var(--bg-2); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:12px; color:var(--text-secondary); cursor:pointer; margin-bottom:14px; }
+  .back-link:hover{ color:var(--text-primary); }
+  .msub{ display:none; } .msub.visible{ display:block; }
+  .mail-card{ background:var(--bg-1); border:1px solid var(--border); border-left:3px solid #5BC0FF; border-radius:12px; padding:14px; margin-bottom:10px; }
+  .mail-card .m-subj{ font-family:var(--font-display); font-weight:600; font-size:15px; margin-bottom:6px; }
+  .mail-card .m-body{ font-size:13px; color:var(--text-secondary); white-space:pre-wrap; }
+  .mail-card .m-act{ display:flex; gap:14px; margin-top:10px; font-family:var(--font-mono); font-size:11px; color:var(--text-muted); }
+  .mail-card .m-act span{ cursor:pointer; } .mail-card .m-act span:hover{ color:var(--text-primary); }
+  .mail-form{ background:var(--bg-1); border:1px solid var(--border); border-radius:12px; padding:14px; max-width:560px; margin-bottom:20px; }
+  .mail-form input, .mail-form textarea{ width:100%; background:var(--bg-2); border:1px solid var(--border); border-radius:8px; color:var(--text-primary); padding:9px 10px; font-family:var(--font-body); font-size:13px; margin-bottom:8px; }
+  .mail-form textarea{ min-height:110px; resize:vertical; }
+  .mail-form button{ background:#10283A; color:#5BC0FF; border:none; border-radius:8px; padding:9px 14px; font-size:13px; font-weight:500; cursor:pointer; }
+  @media (max-width:760px){ .tile{ min-height:130px; flex-direction:row; align-items:center; justify-content:flex-start; gap:16px; } .tile .t-name{ font-size:19px; } }
 </style>
 </head>
 <body>
@@ -340,12 +370,7 @@
     <div class="nav-link active" data-nav="home"><span class="ic">&#8962;</span>Home</div>
     <div class="nav-link" data-nav="marca"><span class="ic">&#9835;</span>Marca personal</div>
     <div class="nav-link" data-nav="trabajo"><span class="ic">&#9881;</span>Trabajo</div>
-    <div class="nav-link" data-nav="finanzas"><span class="ic">&#8383;</span>Finanzas</div>
-    <div class="nav-link" data-nav="salud"><span class="ic">&#9679;</span>Salud</div>
-    <div class="nav-divider"></div>
-    <div class="nav-group-label">Herramientas</div>
-    <div class="nav-link" data-nav="calendario"><span class="ic">&#128197;</span>Calendario</div>
-    <div class="nav-link" data-nav="recordatorios"><span class="ic">&#128276;</span>Recordatorios</div>
+        <div class="nav-link" data-nav="recordatorios"><span class="ic">&#128276;</span>Recordatorios</div>
     <div class="sidebar-footer">Agustín</div>
   </div>
 
@@ -353,19 +378,16 @@
     <div class="mnav-item active" data-nav="home"><span class="mic">&#8962;</span><span class="mlabel">Home</span></div>
     <div class="mnav-item" data-nav="marca"><span class="mic">&#9835;</span><span class="mlabel">Marca</span></div>
     <div class="mnav-item" data-nav="trabajo"><span class="mic">&#9881;</span><span class="mlabel">Trabajo</span></div>
-    <div class="mnav-item" data-nav="finanzas"><span class="mic">&#8383;</span><span class="mlabel">Finanzas</span></div>
-    <div class="mnav-item" data-nav="salud"><span class="mic">&#9679;</span><span class="mlabel">Salud</span></div>
-    <div class="mnav-item" data-nav="calendario"><span class="mic">&#128197;</span><span class="mlabel">Calendario</span></div>
     <div class="mnav-item" data-nav="recordatorios"><span class="mic">&#128276;</span><span class="mlabel">Avisos</span></div>
   </div>
 
   <div class="main">
-    <div class="ticker-wrap">
+    <div class="ticker-wrap" style="display:none">
       <div class="ticker" id="ticker-content">
         <span class="ticker-item"><span class="dot"></span>Cargando cotizaciones...</span>
       </div>
     </div>
-    <div class="ticker-note" id="ticker-note">actualizando...</div>
+    <div class="ticker-note" id="ticker-note" style="display:none">actualizando...</div>
 
     <div class="content">
 
@@ -377,7 +399,13 @@
             <div id="sync-status" style="font-family:var(--font-mono); font-size:10px; color:var(--text-muted); text-align:right; margin-top:3px;">sincronizando...</div>
           </div>
         </div>
-        <div class="dash-grid">
+        <div class="tile-grid">
+          <div class="tile t-marca" data-nav="marca"><div class="t-ic">&#9835;</div><div><div class="t-name">Marca personal</div><div class="t-meta" id="tile-marca-meta"></div></div></div>
+          <div class="tile t-trabajo" data-nav="trabajo"><div class="t-ic">&#9881;</div><div><div class="t-name">Trabajo</div><div class="t-meta" id="tile-trabajo-meta"></div></div></div>
+          <div class="tile t-rec" data-nav="recordatorios"><div class="t-ic">&#128276;</div><div><div class="t-name">Recordatorios</div><div class="t-meta" id="tile-rec-meta"></div></div></div>
+        </div>
+        <div style="display:none">
+          <div class="dash-grid">
           <div>
             <div class="goals-card home-goals-card">
               <div class="title" id="goals-title"></div>
@@ -399,9 +427,51 @@
         </div>
       </div>
 
+      
+      </div>
+
       <div id="marca-view" class="view">
-        <div class="header"><div><h1>Marca personal</h1></div></div>
-        <div class="goals-card" style="max-width:500px; margin-bottom:20px;">
+        <div id="marca-hub">
+          <div class="header"><div><div class="eyebrow">Marca personal</div><h1>¿Qué laburamos hoy?</h1></div></div>
+          <div class="tile-grid">
+            <div class="tile t-marca" data-msub="contenido"><div class="t-ic">&#127916;</div><div><div class="t-name">Contenido</div><div class="t-meta">Calendario · ideas · tablero</div></div></div>
+            <div class="tile t-trabajo" data-msub="objetivos"><div class="t-ic">&#127919;</div><div><div class="t-name">Objetivos del mes</div><div class="t-meta" id="tile-obj-meta">Metas y recordatorios</div></div></div>
+            <div class="tile t-mails" data-msub="mails"><div class="t-ic">&#9993;</div><div><div class="t-name">Mails y promos</div><div class="t-meta" id="tile-mails-meta">Plantillas guardadas</div></div></div>
+            <div class="tile t-gray standby" data-msub="djing"><div class="t-ic">&#127911;</div><div><div class="t-name">DJing</div><div class="t-meta">stand by</div></div></div>
+            <div class="tile t-gray standby" data-msub="produccion"><div class="t-ic">&#127900;</div><div><div class="t-name">Producción</div><div class="t-meta">stand by</div></div></div>
+          </div>
+        </div>
+
+        <div id="msub-contenido" class="msub">
+          <div class="back-link" data-msub="hub">&larr; Marca personal</div>
+          <div class="header"><div><h1>Contenido</h1></div></div>
+          <div class="section-label" style="margin-top:8px;">Calendario · planificá el mes y anotá ideas por día</div>
+          <div class="calendar-page">
+          <div class="calendar-card">
+            <div class="cal-head"><div class="month" id="cal-month"></div><div class="cal-nav"><span id="cal-prev">&#8592;</span><span id="cal-next">&#8594;</span></div></div>
+            <div class="cal-weekdays"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
+            <div class="cal-days" id="cal-days"></div>
+          </div>
+          <div class="cal-event-box">
+            <div class="lbl" id="event-day-label">Seleccioná un día</div>
+            <div class="event-day-count" id="event-day-count"></div>
+            <input type="text" id="event-input" placeholder="Agregar evento...">
+            <div class="frow" style="display:flex; gap:8px; margin-bottom:8px;">
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); align-self:center;">notificar a las</span>
+              <input type="time" id="event-time" style="flex:1; margin-bottom:0;">
+            </div>
+            <button id="event-add">Agregar</button>
+            <div class="cal-event-list" id="event-list"></div>
+          </div>
+        </div>
+          <div class="section-label">Tablero de ideas</div>
+          <div class="board" id="board"></div>
+        </div>
+
+        <div id="msub-objetivos" class="msub">
+          <div class="back-link" data-msub="hub">&larr; Marca personal</div>
+          <div class="header"><div><h1>Objetivos del mes</h1></div></div>
+          <div class="goals-card" style="max-width:500px; margin-bottom:20px;">
           <div class="title" style="margin-bottom:8px;">Metas mensuales</div>
           <div id="marca-goals-list" style="margin-top:4px;"></div>
           <div class="add-goal-section">
@@ -412,17 +482,34 @@
             </div>
           </div>
         </div>
-        <div class="subtabs">
-          <div class="subtab active" data-sub="contenido">Contenido</div>
-          <div class="subtab" data-sub="djing">DJing</div>
-          <div class="subtab" data-sub="produccion">Producción</div>
+
+          <div class="section-label">Recordatorios</div>
+          <div class="goals-card" style="max-width:500px;"><div id="home-reminders-list-marca"></div><div class="see-all" data-nav="recordatorios">Ver todos los recordatorios &rarr;</div></div>
         </div>
-        <div id="sub-contenido" class="subview visible"><div class="board" id="board"></div></div>
-        <div id="sub-djing" class="subview">
+
+        <div id="msub-mails" class="msub">
+          <div class="back-link" data-msub="hub">&larr; Marca personal</div>
+          <div class="header"><div><h1>Mails y promos</h1></div></div>
+          <div class="section-label" style="margin-top:8px;">Nueva plantilla</div>
+          <div class="mail-form">
+            <input type="text" id="mail-subj" placeholder="Asunto...">
+            <textarea id="mail-body" placeholder="Texto del mail / promo..."></textarea>
+            <button id="mail-add">Guardar plantilla</button>
+          </div>
+          <div class="section-label">Guardadas</div>
+          <div id="mail-list" style="max-width:560px;"></div>
+        </div>
+
+        <div id="msub-djing" class="msub">
+          <div class="back-link" data-msub="hub">&larr; Marca personal</div>
+          <div class="header"><div><h1>DJing</h1></div></div>
           <div class="detail-empty">DJing en stand by. Cuando lo activemos: registro de práctica con CDJ y tus playlists de Rekordbox como referencia.</div>
         </div>
-        <div id="sub-produccion" class="subview">
-          <div class="detail-empty" style="margin-bottom:16px;">Producción en stand by — la meta mensual se sincroniza con "Metas de marca" del Home.</div>
+
+        <div id="msub-produccion" class="msub">
+          <div class="back-link" data-msub="hub">&larr; Marca personal</div>
+          <div class="header"><div><h1>Producción</h1></div></div>
+          <div class="detail-empty" style="margin-bottom:16px;">Producción en stand by.</div>
           <div class="board-col" style="max-width:400px;">
             <div class="col-title">Tracks en curso</div>
             <div id="tracks-list"></div>
@@ -568,28 +655,6 @@
               <div id="podcasts-list"></div>
               <div class="add-book"><input type="text" id="podcast-input" placeholder="Nombre del podcast..."><button id="podcast-add">+</button></div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="calendario-view" class="view">
-        <div class="header"><div><h1>Calendario</h1></div></div>
-        <div class="calendar-page">
-          <div class="calendar-card">
-            <div class="cal-head"><div class="month" id="cal-month"></div><div class="cal-nav"><span id="cal-prev">&#8592;</span><span id="cal-next">&#8594;</span></div></div>
-            <div class="cal-weekdays"><div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div></div>
-            <div class="cal-days" id="cal-days"></div>
-          </div>
-          <div class="cal-event-box">
-            <div class="lbl" id="event-day-label">Seleccioná un día</div>
-            <div class="event-day-count" id="event-day-count"></div>
-            <input type="text" id="event-input" placeholder="Agregar evento...">
-            <div class="frow" style="display:flex; gap:8px; margin-bottom:8px;">
-              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted); align-self:center;">notificar a las</span>
-              <input type="time" id="event-time" style="flex:1; margin-bottom:0;">
-            </div>
-            <button id="event-add">Agregar</button>
-            <div class="cal-event-list" id="event-list"></div>
           </div>
         </div>
       </div>
@@ -1185,11 +1250,65 @@
     input.value=''; renderPodcasts();
   });
 
+
+  // ===== NUEVO DISEÑO: navegación Marca, mails, tiles =====
+  function showMarcaSub(name){
+    document.getElementById('marca-hub').style.display = (!name || name==='hub') ? 'block' : 'none';
+    document.querySelectorAll('.msub').forEach(el=> el.classList.remove('visible'));
+    if(name && name!=='hub'){ const el=document.getElementById('msub-'+name); if(el) el.classList.add('visible'); }
+    window.scrollTo(0,0);
+  }
+  document.addEventListener('click', e=>{
+    const t = e.target.closest('[data-msub]'); if(t){ showMarcaSub(t.dataset.msub); }
+  });
+  const loadMails = ()=> JSON.parse(LS.getItem('vida_mails') || '[]');
+  const saveMails = m=> LS.setItem('vida_mails', JSON.stringify(m));
+  function renderMails(){
+    const list=document.getElementById('mail-list'); list.innerHTML='';
+    const items=loadMails();
+    const meta=document.getElementById('tile-mails-meta'); if(meta) meta.textContent = items.length ? items.length+' plantilla'+(items.length>1?'s':'') : 'Plantillas guardadas';
+    items.forEach((m,idx)=>{
+      const c=document.createElement('div'); c.className='mail-card';
+      const subj=document.createElement('div'); subj.className='m-subj'; subj.textContent=m.subj;
+      const body=document.createElement('div'); body.className='m-body'; body.textContent=m.body;
+      const act=document.createElement('div'); act.className='m-act';
+      act.innerHTML='<span data-a="copy">copiar texto</span><span data-a="del">eliminar</span>';
+      act.querySelector('[data-a="copy"]').addEventListener('click', ev=>{
+        const txt=(m.subj?m.subj+'\n\n':'')+m.body;
+        (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>{ ev.target.textContent='copiado ✓'; setTimeout(()=>ev.target.textContent='copiar texto',1500); }).catch(()=>{});
+      });
+      act.querySelector('[data-a="del"]').addEventListener('click', ()=>{ const arr=loadMails(); arr.splice(idx,1); saveMails(arr); renderMails(); });
+      c.append(subj,body,act); list.appendChild(c);
+    });
+  }
+  document.getElementById('mail-add').addEventListener('click', ()=>{
+    const subj=document.getElementById('mail-subj'), body=document.getElementById('mail-body');
+    if(!subj.value.trim() && !body.value.trim()) return;
+    const arr=loadMails(); arr.push({subj:subj.value.trim(), body:body.value.trim()}); saveMails(arr);
+    subj.value=''; body.value=''; renderMails();
+  });
+  function renderTiles(){
+    try{
+      const board = JSON.parse(LS.getItem('vida_board') || '{}');
+      const ideas = Object.values(board).reduce((n,a)=> n+(Array.isArray(a)?a.length:0),0);
+      document.getElementById('tile-marca-meta').textContent = ideas+' en el tablero';
+      const pf = JSON.parse(LS.getItem('vida_portfolio') || '[]');
+      document.getElementById('tile-trabajo-meta').textContent = pf.length+' caso'+(pf.length===1?'':'s')+' en portafolio';
+      const rs = JSON.parse(LS.getItem('vida_reminders') || '[]').filter(r=>!r.done);
+      document.getElementById('tile-rec-meta').textContent = rs.length+' pendiente'+(rs.length===1?'':'s');
+    }catch(e){}
+    // espejo de recordatorios dentro de Objetivos del mes
+    const src=document.getElementById('home-reminders-list'), dst=document.getElementById('home-reminders-list-marca');
+    if(src && dst) dst.innerHTML = src.innerHTML;
+  }
+
   function goTo(view){
     document.querySelectorAll('.nav-link').forEach(el=> el.classList.toggle('active', el.dataset.nav===view));
     document.querySelectorAll('.mnav-item').forEach(el=> el.classList.toggle('active', el.dataset.nav===view));
     document.querySelectorAll('.view').forEach(el=> el.classList.remove('visible'));
     document.getElementById(view+'-view').classList.add('visible');
+    if(view==='marca') showMarcaSub('hub');
+    renderTiles();
     window.scrollTo(0,0);
   }
   document.querySelectorAll('[data-nav]').forEach(el=>{ el.addEventListener('click', ()=> goTo(el.dataset.nav)); });
@@ -1269,7 +1388,7 @@
   async function initApp(){
     await loadCloudState(); // trae los datos guardados (de la nube o de la caché local si no hay internet)
 
-    renderHeader(); renderGoals(); renderCalendar(); renderReminders(); renderHomeReminders(); renderWeeks();
+    renderHeader(); renderGoals(); renderCalendar(); renderMails(); renderTiles(); renderReminders(); renderHomeReminders(); renderWeeks();
     renderBoard(); renderTracks(); renderPfFilters(); renderPortfolio();
     renderAssets(); renderPurchases(); renderStock(); renderBooks(); renderPodcasts();
     ['marca','trabajo','finanzas','salud'].forEach(renderAreaGoalsUI);
