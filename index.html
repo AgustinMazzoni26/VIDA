@@ -361,6 +361,37 @@
   .mail-form textarea{ min-height:110px; resize:vertical; }
   .mail-form button{ background:#10283A; color:#5BC0FF; border:none; border-radius:8px; padding:9px 14px; font-size:13px; font-weight:500; cursor:pointer; }
   @media (max-width:760px){ .tile{ min-height:130px; flex-direction:row; align-items:center; justify-content:flex-start; gap:16px; } .tile .t-name{ font-size:19px; } }
+
+  /* planificador */
+  .planner{ background:var(--bg-1); border:1px solid var(--border); border-radius:14px; padding:18px; margin-bottom:18px; }
+  .planner .p-title{ font-family:var(--font-display); font-size:16px; font-weight:600; margin-bottom:12px; }
+  .planner .p-row{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; align-items:flex-end; }
+  .planner label{ display:flex; flex-direction:column; gap:4px; font-family:var(--font-mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); }
+  .planner input, .planner select{ background:var(--bg-2); border:1px solid var(--border); border-radius:8px; color:var(--text-primary); padding:8px 10px; font-size:13px; font-family:var(--font-body); }
+  .planner input[type=number]{ width:80px; }
+  .chips{ display:flex; gap:6px; flex-wrap:wrap; }
+  .chip{ font-family:var(--font-mono); font-size:12px; color:var(--text-secondary); background:var(--bg-2); border:1px solid var(--border); border-radius:8px; padding:7px 11px; cursor:pointer; user-select:none; }
+  .chip.on{ color:var(--marca); border-color:var(--marca); background:var(--marca-dim); }
+  .planner .p-btn{ background:var(--marca-dim); color:var(--marca); border:none; border-radius:8px; padding:9px 14px; font-size:13px; font-weight:500; cursor:pointer; }
+  .planner .p-btn.ghost{ background:var(--bg-2); color:var(--text-secondary); }
+  .planner .p-msg{ font-family:var(--font-mono); font-size:11px; color:var(--signal); margin-top:6px; min-height:14px; }
+  /* recordatorios en filas */
+  .rem-group{ margin-bottom:18px; }
+  .rem-group-title{ font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; display:flex; justify-content:space-between; }
+  .rem-table{ background:var(--bg-1); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .rem-line{ display:grid; grid-template-columns:28px 1fr 110px 90px 28px; gap:10px; align-items:center; padding:11px 14px; border-bottom:1px solid var(--border); font-size:14px; }
+  .rem-line:last-child{ border-bottom:none; }
+  .rem-line input[type=checkbox]{ width:16px; height:16px; accent-color:var(--signal); }
+  .rem-line.done .r-txt{ color:var(--text-muted); text-decoration:line-through; }
+  .rem-line .r-cat{ font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em; padding:3px 8px; border-radius:6px; text-align:center; }
+  .rem-line .r-date{ font-family:var(--font-mono); font-size:11px; color:var(--text-secondary); text-align:right; }
+  .rem-line .r-date.late{ color:var(--down); }
+  .rem-line .r-del{ color:var(--text-muted); cursor:pointer; text-align:center; } .rem-line .r-del:hover{ color:var(--down); }
+  .rem-form{ margin-top:18px; display:flex; flex-wrap:wrap; gap:8px; background:var(--bg-1); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:22px; }
+  .rem-form input, .rem-form select{ background:var(--bg-2); border:1px solid var(--border); border-radius:8px; color:var(--text-primary); padding:9px 10px; font-size:13px; font-family:var(--font-body); }
+  .rem-form input[type=text]{ flex:1; min-width:180px; }
+  .rem-form button{ background:var(--signal-dim); color:var(--signal); border:none; border-radius:8px; padding:9px 16px; font-size:13px; font-weight:500; cursor:pointer; }
+  @media (max-width:760px){ .rem-line{ grid-template-columns:26px 1fr 26px; } .rem-line .r-cat, .rem-line .r-date{ grid-column:2; text-align:left; display:inline-block; justify-self:start; } .rem-line .r-del{ grid-column:3; grid-row:1; } }
 </style>
 </head>
 <body>
@@ -369,7 +400,6 @@
     <div class="brand">VIDA<span class="dot">.</span></div>
     <div class="nav-link active" data-nav="home"><span class="ic">&#8962;</span>Home</div>
     <div class="nav-link" data-nav="marca"><span class="ic">&#9835;</span>Marca personal</div>
-    <div class="nav-link" data-nav="trabajo"><span class="ic">&#9881;</span>Trabajo</div>
         <div class="nav-link" data-nav="recordatorios"><span class="ic">&#128276;</span>Recordatorios</div>
     <div class="sidebar-footer">Agustín</div>
   </div>
@@ -377,7 +407,6 @@
   <div class="mobile-nav">
     <div class="mnav-item active" data-nav="home"><span class="mic">&#8962;</span><span class="mlabel">Home</span></div>
     <div class="mnav-item" data-nav="marca"><span class="mic">&#9835;</span><span class="mlabel">Marca</span></div>
-    <div class="mnav-item" data-nav="trabajo"><span class="mic">&#9881;</span><span class="mlabel">Trabajo</span></div>
     <div class="mnav-item" data-nav="recordatorios"><span class="mic">&#128276;</span><span class="mlabel">Avisos</span></div>
   </div>
 
@@ -401,7 +430,6 @@
         </div>
         <div class="tile-grid">
           <div class="tile t-marca" data-nav="marca"><div class="t-ic">&#9835;</div><div><div class="t-name">Marca personal</div><div class="t-meta" id="tile-marca-meta"></div></div></div>
-          <div class="tile t-trabajo" data-nav="trabajo"><div class="t-ic">&#9881;</div><div><div class="t-name">Trabajo</div><div class="t-meta" id="tile-trabajo-meta"></div></div></div>
           <div class="tile t-rec" data-nav="recordatorios"><div class="t-ic">&#128276;</div><div><div class="t-name">Recordatorios</div><div class="t-meta" id="tile-rec-meta"></div></div></div>
         </div>
         <div style="display:none">
@@ -446,6 +474,29 @@
           <div class="back-link" data-msub="hub">&larr; Marca personal</div>
           <div class="header"><div><h1>Contenido</h1></div></div>
           <div class="section-label" style="margin-top:8px;">Calendario · planificá el mes y anotá ideas por día</div>
+          <div class="planner">
+            <div class="p-title">Planificador del mes</div>
+            <div class="p-row">
+              <div class="chips" id="pl-presets">
+                <span class="chip" data-p="tiktok3">TikTok 3x/semana</span>
+                <span class="chip" data-p="carr15">Carrusel cada 15 días</span>
+                <span class="chip" data-p="mensual">1 por mes</span>
+              </div>
+            </div>
+            <div class="p-row">
+              <label>Mes<select id="pl-month"></select></label>
+              <label>Contenido<input type="text" id="pl-type" list="pl-types" placeholder="TikTok" style="width:140px;"><datalist id="pl-types"><option value="TikTok"><option value="Reel"><option value="Carrusel"><option value="Story"><option value="Post"><option value="Mix / set"></datalist></label>
+              <label>Frecuencia<select id="pl-mode"><option value="weekly">Días fijos de la semana</option><option value="every">Cada N días</option><option value="monthly">Una vez por mes</option></select></label>
+              <label id="pl-n-wrap" style="display:none;"><span id="pl-n-lbl">Cada</span><input type="number" id="pl-n" min="1" max="31" value="15"></label>
+              <label id="pl-start-wrap" style="display:none;"><span id="pl-start-lbl">Desde el día</span><input type="number" id="pl-start" min="1" max="31" value="1"></label>
+              <label>Hora (opc.)<input type="time" id="pl-time"></label>
+            </div>
+            <div class="p-row" id="pl-days-wrap"><div class="chips" id="pl-days">
+              <span class="chip" data-d="1">Lun</span><span class="chip" data-d="2">Mar</span><span class="chip" data-d="3">Mié</span><span class="chip" data-d="4">Jue</span><span class="chip" data-d="5">Vie</span><span class="chip" data-d="6">Sáb</span><span class="chip" data-d="0">Dom</span>
+            </div></div>
+            <div class="p-row"><button class="p-btn" id="pl-gen">Generar en el calendario</button><button class="p-btn ghost" id="pl-clear">Borrar lo generado del mes</button></div>
+            <div class="p-msg" id="pl-msg"></div>
+          </div>
           <div class="calendar-page">
           <div class="calendar-card">
             <div class="cal-head"><div class="month" id="cal-month"></div><div class="cal-nav"><span id="cal-prev">&#8592;</span><span id="cal-next">&#8594;</span></div></div>
@@ -661,12 +712,13 @@
 
       <div id="recordatorios-view" class="view">
         <div class="header"><div><h1>Recordatorios</h1></div></div>
-        <div class="reminders-page">
-          <div class="reminders-card">
-            <div id="reminders-list"></div>
-            <div class="add-reminder"><input type="text" id="reminder-input" placeholder="Agregar recordatorio..."><button id="reminder-add">Agregar</button></div>
-          </div>
+        <div class="rem-form">
+          <input type="text" id="reminder-input" placeholder="Nuevo recordatorio...">
+          <input type="date" id="reminder-date">
+          <select id="reminder-cat"><option>Marca</option><option>Trabajo</option><option>Finanzas</option><option>Salud</option><option>Personal</option></select>
+          <button id="reminder-add">Agregar</button>
         </div>
+        <div id="reminders-list"></div>
       </div>
 
     </div>
@@ -894,20 +946,44 @@
 
   const loadReminders = ()=> JSON.parse(LS.getItem('vida_reminders')||'[]');
   const saveReminders = r => LS.setItem('vida_reminders', JSON.stringify(r));
+  const REM_COLORS = {Marca:['#8B7FFF','#211E3A'], Trabajo:['#FFB020','#3A2C0C'], Finanzas:['#00E6A0','#0A3B2C'], Salud:['#FF6B57','#3A1912'], Personal:['#5BC0FF','#10283A']};
   function renderReminders(){
-    const items = loadReminders(); const list = document.getElementById('reminders-list'); list.innerHTML='';
-    items.forEach((r, idx)=>{
-      const row = document.createElement('div'); row.className='rem-row'+(r.done?' done':'');
-      row.innerHTML = '<input type="checkbox" '+(r.done?'checked':'')+'><span class="txt">'+r.text+'</span><span class="del">&times;</span>';
-      row.querySelector('input').addEventListener('change',(e)=>{ const rs=loadReminders(); rs[idx].done=e.target.checked; saveReminders(rs); renderReminders(); });
-      row.querySelector('.del').addEventListener('click',()=>{ const rs=loadReminders(); rs.splice(idx,1); saveReminders(rs); renderReminders(); });
-      list.appendChild(row);
+    const items = loadReminders(); const box = document.getElementById('reminders-list'); box.innerHTML='';
+    const t0 = new Date(); t0.setHours(0,0,0,0);
+    const key = d=> d? Math.round((new Date(d+'T00:00:00')-t0)/86400000) : null;
+    const groups = [['Vencidos',[]],['Hoy',[]],['Esta semana',[]],['Más adelante',[]],['Sin fecha',[]],['Hechos',[]]];
+    items.forEach((r,idx)=>{
+      const k = key(r.date); let g;
+      if(r.done) g=5; else if(k===null) g=4; else if(k<0) g=0; else if(k===0) g=1; else if(k<=7) g=2; else g=3;
+      groups[g][1].push({r,idx,k});
     });
+    groups.forEach(([name,list],gi)=>{
+      if(!list.length) return;
+      list.sort((a,b)=> (a.r.date||'9999').localeCompare(b.r.date||'9999'));
+      const wrap=document.createElement('div'); wrap.className='rem-group';
+      wrap.innerHTML='<div class="rem-group-title"><span>'+name+'</span><span>'+list.length+'</span></div>';
+      const table=document.createElement('div'); table.className='rem-table';
+      list.forEach(({r,idx,k})=>{
+        const row=document.createElement('div'); row.className='rem-line'+(r.done?' done':'');
+        const cat=r.cat||'Personal'; const col=REM_COLORS[cat]||REM_COLORS.Personal;
+        const dtxt = r.date ? r.date.slice(8,10)+'/'+r.date.slice(5,7) : '—';
+        row.innerHTML='<input type="checkbox" '+(r.done?'checked':'')+'><span class="r-txt"></span><span class="r-cat" style="color:'+col[0]+';background:'+col[1]+'">'+cat+'</span><span class="r-date'+(gi===0?' late':'')+'">'+dtxt+'</span><span class="r-del">&times;</span>';
+        row.querySelector('.r-txt').textContent=r.text;
+        row.querySelector('input').addEventListener('change',e=>{ const rs=loadReminders(); rs[idx].done=e.target.checked; saveReminders(rs); renderReminders(); renderHomeReminders(); renderTiles(); });
+        row.querySelector('.r-del').addEventListener('click',()=>{ const rs=loadReminders(); rs.splice(idx,1); saveReminders(rs); renderReminders(); renderHomeReminders(); renderTiles(); });
+        table.appendChild(row);
+      });
+      wrap.appendChild(table); box.appendChild(wrap);
+    });
+    if(!items.length) box.innerHTML='<div class="detail-empty">Sin recordatorios. Agregá el primero arriba.</div>';
   }
   document.getElementById('reminder-add').addEventListener('click', ()=>{
-    const input = document.getElementById('reminder-input'); if(!input.value.trim()) return;
-    const rs = loadReminders(); rs.push({text:input.value.trim(), done:false}); saveReminders(rs); input.value=''; renderReminders(); renderHomeReminders();
+    const input=document.getElementById('reminder-input'); if(!input.value.trim()) return;
+    const rs=loadReminders(); rs.push({text:input.value.trim(), done:false, date:document.getElementById('reminder-date').value||null, cat:document.getElementById('reminder-cat').value});
+    saveReminders(rs); input.value=''; document.getElementById('reminder-date').value='';
+    renderReminders(); renderHomeReminders(); renderTiles();
   });
+
 
   function renderHomeReminders(){
     const box = document.getElementById('home-reminders-list');
@@ -1251,6 +1327,55 @@
   });
 
 
+  // ===== PLANIFICADOR DE CONTENIDO =====
+  (function(){
+    const sel=document.getElementById('pl-month');
+    for(let i=0;i<7;i++){ const d=new Date(today.getFullYear(), today.getMonth()+i, 1); const o=document.createElement('option'); o.value=d.getFullYear()+'-'+d.getMonth(); o.textContent=MONTH_NAMES[d.getMonth()]+' '+d.getFullYear(); sel.appendChild(o); }
+    const days=new Set();
+    const chips=[...document.querySelectorAll('#pl-days .chip')];
+    const setDays=arr=>{ days.clear(); arr.forEach(x=>days.add(String(x))); chips.forEach(c=>c.classList.toggle('on',days.has(c.dataset.d))); };
+    chips.forEach(c=>c.addEventListener('click',()=>{ days.has(c.dataset.d)?days.delete(c.dataset.d):days.add(c.dataset.d); c.classList.toggle('on'); }));
+    const modeEl=document.getElementById('pl-mode');
+    function syncMode(){
+      const m=modeEl.value;
+      document.getElementById('pl-days-wrap').style.display = m==='weekly'?'flex':'none';
+      document.getElementById('pl-n-wrap').style.display = m==='every'?'flex':'none';
+      document.getElementById('pl-start-wrap').style.display = m==='weekly'?'none':'flex';
+      document.getElementById('pl-start-lbl').textContent = m==='monthly'?'Día del mes':'Desde el día';
+    }
+    modeEl.addEventListener('change',syncMode);
+    const PRESETS={ tiktok3:{type:'TikTok',mode:'weekly',days:[1,3,5]}, carr15:{type:'Carrusel',mode:'every',n:15,start:1}, mensual:{type:'Post',mode:'monthly',start:1} };
+    document.querySelectorAll('#pl-presets .chip').forEach(c=>c.addEventListener('click',()=>{
+      const p=PRESETS[c.dataset.p]; document.getElementById('pl-type').value=p.type; modeEl.value=p.mode;
+      if(p.days) setDays(p.days); if(p.n) document.getElementById('pl-n').value=p.n; if(p.start) document.getElementById('pl-start').value=p.start; syncMode();
+    }));
+    setDays([1,3,5]); document.getElementById('pl-type').value='TikTok'; syncMode();
+    const msg=t=>{ document.getElementById('pl-msg').textContent=t; };
+    function ym(){ const [y,m]=sel.value.split('-').map(Number); return [y,m]; }
+    document.getElementById('pl-gen').addEventListener('click',()=>{
+      const [y,m]=ym(); const type=document.getElementById('pl-type').value.trim(); if(!type){ msg('Poné qué contenido es.'); return; }
+      const time=document.getElementById('pl-time').value||null; const dim=new Date(y,m+1,0).getDate();
+      const n=Math.max(1,parseInt(document.getElementById('pl-n').value)||1); const start=Math.min(dim,Math.max(1,parseInt(document.getElementById('pl-start').value)||1));
+      const mode=modeEl.value; const target=[];
+      for(let d=1; d<=dim; d++){
+        if(mode==='weekly'){ if(days.has(String(new Date(y,m,d).getDay()))) target.push(d); }
+        else if(mode==='every'){ if(d>=start && (d-start)%n===0) target.push(d); }
+        else if(d===start) target.push(d);
+      }
+      if(mode==='weekly' && !days.size){ msg('Elegí al menos un día.'); return; }
+      const ev=loadEvents(); let added=0;
+      target.forEach(d=>{ const k=fmtKey(y,m,d); ev[k]=ev[k]||[]; if(!ev[k].some(e=>evText(e)===type)){ ev[k].push({text:type,time:time,gen:true}); added++; } });
+      saveEvents(ev); calYear=y; calMonth=m; renderCalendar(); renderTiles();
+      msg(added+' publicaci'+(added===1?'ón':'ones')+' agregada'+(added===1?'':'s')+' en '+MONTH_NAMES[m]+'.');
+    });
+    document.getElementById('pl-clear').addEventListener('click',()=>{
+      const [y,m]=ym(); const pre=y+'-'+String(m+1).padStart(2,'0'); const ev=loadEvents(); let n=0;
+      Object.keys(ev).forEach(k=>{ if(k.startsWith(pre)){ const before=ev[k].length; ev[k]=ev[k].filter(e=>!e.gen); n+=before-ev[k].length; if(!ev[k].length) delete ev[k]; } });
+      saveEvents(ev); calYear=y; calMonth=m; renderCalendar(); selectedDate && renderEventList();
+      msg(n+' generada'+(n===1?'':'s')+' borrada'+(n===1?'':'s')+' (lo que cargaste a mano queda).');
+    });
+  })();
+
   // ===== NUEVO DISEÑO: navegación Marca, mails, tiles =====
   function showMarcaSub(name){
     document.getElementById('marca-hub').style.display = (!name || name==='hub') ? 'block' : 'none';
@@ -1292,8 +1417,6 @@
       const board = JSON.parse(LS.getItem('vida_board') || '{}');
       const ideas = Object.values(board).reduce((n,a)=> n+(Array.isArray(a)?a.length:0),0);
       document.getElementById('tile-marca-meta').textContent = ideas+' en el tablero';
-      const pf = JSON.parse(LS.getItem('vida_portfolio') || '[]');
-      document.getElementById('tile-trabajo-meta').textContent = pf.length+' caso'+(pf.length===1?'':'s')+' en portafolio';
       const rs = JSON.parse(LS.getItem('vida_reminders') || '[]').filter(r=>!r.done);
       document.getElementById('tile-rec-meta').textContent = rs.length+' pendiente'+(rs.length===1?'':'s');
     }catch(e){}
